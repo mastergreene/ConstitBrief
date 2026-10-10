@@ -1,4 +1,4 @@
-"""Moreton Casework Fast-Resolver - FastAPI app serving the API and the PWA."""
+"""ConstitBrief - FastAPI app serving the API and the web app."""
 from __future__ import annotations
 
 import logging
@@ -11,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from . import db
 from .config import FRONTEND_DIR, settings
 from .routers import api
-from .security import AccessTokenMiddleware, SecurityHeadersMiddleware
+from .security import CsrfMiddleware, SecurityHeadersMiddleware
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
@@ -19,13 +19,13 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     db.init_db()
-    db.purge_old_cases()
+    db.purge_expired()
     yield
 
 
-app = FastAPI(title="Moreton Casework Fast-Resolver", version="1.0.0", lifespan=lifespan,
+app = FastAPI(title="ConstitBrief", version="2.0.0", lifespan=lifespan,
               docs_url="/api/docs", openapi_url="/api/openapi.json", redoc_url=None)
-app.add_middleware(AccessTokenMiddleware)
+app.add_middleware(CsrfMiddleware)
 app.add_middleware(SecurityHeadersMiddleware)
 app.include_router(api.router)
 

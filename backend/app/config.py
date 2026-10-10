@@ -1,7 +1,6 @@
 """Runtime configuration, read from environment variables (and an optional .env file)."""
 from __future__ import annotations
 
-import json
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -47,17 +46,6 @@ def _env_float(name: str, default: float) -> float:
         return default
 
 
-def _env_json(name: str) -> dict:
-    raw = _env(name)
-    if not raw:
-        return {}
-    try:
-        value = json.loads(raw)
-        return value if isinstance(value, dict) else {}
-    except json.JSONDecodeError:
-        return {}
-
-
 DEFAULT_SEARCH_DOMAINS = (
     "servicesaustralia.gov.au,homeaffairs.gov.au,myagedcare.gov.au,"
     "ndis.gov.au,ato.gov.au,dva.gov.au,my.gov.au"
@@ -69,17 +57,22 @@ class Settings:
     host: str = field(default_factory=lambda: _env("HOST", "127.0.0.1"))
     port: int = field(default_factory=lambda: _env_int("PORT", 8787))
     db_path: Path = field(
-        default_factory=lambda: (ROOT_DIR / _env("DB_PATH", "data/casework.sqlite3")).resolve()
+        default_factory=lambda: (ROOT_DIR / _env("DB_PATH", "data/constitbrief.sqlite3")).resolve()
     )
-    case_retention_days: int = field(default_factory=lambda: _env_int("CASE_RETENTION_DAYS", 30))
-    access_token: str = field(default_factory=lambda: _env("APP_ACCESS_TOKEN"))
+    # Server-side interaction drafts (notes + record) are deleted after this many hours.
+    draft_retention_hours: int = field(default_factory=lambda: _env_int("DRAFT_RETENTION_HOURS", 72))
+    session_hours: int = field(default_factory=lambda: _env_int("SESSION_HOURS", 10))
+    # Set false only for plain-http localhost development.
+    cookie_secure: bool = field(default_factory=lambda: _env("COOKIE_SECURE", "true").lower() != "false")
 
+    # Analysis provider: "rules" (default, nothing leaves the server) or "jev".
+    analysis_provider: str = field(default_factory=lambda: _env("ANALYSIS_PROVIDER", "rules").lower())
     openrouter_api_key: str = field(default_factory=lambda: _env("OPENROUTER_API_KEY"))
     jev_url: str = field(
         default_factory=lambda: _env("JEV_URL", "https://openrouter.ai/api/alpha/decisions")
     )
     jev_model: str = field(default_factory=lambda: _env("JEV_MODEL", "typesafe/jev-1.13"))
-    jev_timeout: float = field(default_factory=lambda: _env_float("JEV_TIMEOUT_SECONDS", 6.0))
+    jev_timeout: float = field(default_factory=lambda: _env_float("JEV_TIMEOUT_SECONDS", 3.0))
     generate_model: str = field(default_factory=lambda: _env("GENERATE_MODEL"))
 
     brave_api_key: str = field(default_factory=lambda: _env("BRAVE_API_KEY"))
@@ -94,10 +87,19 @@ class Settings:
         )
     )
 
-    jotform_url: str = field(
-        default_factory=lambda: _env("JOTFORM_URL", "https://form.jotform.com/252413844700855")
-    )
-    jotform_typea_map: dict = field(default_factory=lambda: _env_json("JOTFORM_TYPEA_MAP"))
+    # Jotform handoff. Only the enquiry option goes in the URL by default; contact details
+    # only if the office explicitly opts in. Notes/identifiers never go in a URL.
+    jotform_prefill_type: bool = field(
+        default_factory=lambda: _env("JOTFORM_PREFILL_TYPE", "true").lower() == "true")
+    jotform_prefill_contact: bool = field(
+        default_factory=lambda: _env("JOTFORM_PREFILL_CONTACT", "false").lower() == "true")
+    # Form to hand off to. Override only to point a staging deployment at a cloned test form
+    # (same structure) for routing verification.
+    jotform_form_id: str = field(default_factory=lambda: _env("JOTFORM_FORM_ID", "252413844700855"))
+    # Optional READ-ONLY use of the Jotform API to confirm a submission by its reference.
+    jotform_api_key: str = field(default_factory=lambda: _env("JOTFORM_API_KEY"))
+    jotform_api_base: str = field(
+        default_factory=lambda: _env("JOTFORM_API_BASE", "https://api.jotform.com"))
 
     office_signoff: str = field(default_factory=lambda: _env("OFFICE_SIGNOFF", "Team Moreton"))
     office_name: str = field(

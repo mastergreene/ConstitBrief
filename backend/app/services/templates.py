@@ -52,7 +52,7 @@ def _slugify(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")[:60] or "template"
 
 
-def create_template(data: dict[str, Any]) -> dict[str, Any]:
+def create_template(data: dict[str, Any], user: dict[str, Any] | None = None) -> dict[str, Any]:
     slug = data.get("slug") or _slugify(data["title"])
     with get_conn() as conn:
         base, n = slug, 2
@@ -69,22 +69,33 @@ def create_template(data: dict[str, Any]) -> dict[str, Any]:
             ),
         )
         tid = cur.lastrowid
+        if user:
+            conn.execute("UPDATE templates SET reviewed_by = ? WHERE id = ?", (user["display_name"], tid))
     return get_template(tid)  # type: ignore[return-value]
 
 
-def update_template(tid: int, data: dict[str, Any]) -> dict[str, Any] | None:
+def update_template(tid: int, data: dict[str, Any], user: dict[str, Any] | None = None
+                    ) -> dict[str, Any] | None:
+    """Edit a template. Only an explicit approve marks it reviewed (and usable as guidance)."""
     current = get_template(tid)
     if not current:
         return None
+    approve = bool(data.pop("approve", False))
     merged = {**current, **{k: v for k, v in data.items() if v is not None}}
+    changed = any(merged[k] != current[k] for k in ("title", "category", "tags", "summary", "sms",
+                                                        "body", "source_urls"))
+    needs_review = 0 if approve else (1 if changed else int(current["needs_review"]))
     with get_conn() as conn:
         conn.execute(
             """UPDATE templates SET title=?, category=?, tags=?, summary=?, sms=?, body=?,
-               source_urls=?, needs_review=0, last_reviewed=?, updated_at=? WHERE id=?""",
+               source_urls=?, needs_review=?, last_reviewed=?, reviewed_by=?, updated_at=? WHERE id=?""",
             (
                 merged["title"], merged["category"], json.dumps(merged["tags"]),
                 merged["summary"], merged["sms"], merged["body"],
-                json.dumps(merged["source_urls"]), now_iso()[:10], now_iso(), tid,
+                json.dumps(merged["source_urls"]), needs_review,
+                now_iso()[:10] if approve else current["last_reviewed"],
+                (user or {}).get("display_name") if approve else current.get("reviewed_by"),
+                now_iso(), tid,
             ),
         )
     return get_template(tid)
@@ -99,17 +110,21 @@ def _terms(text: str) -> set[str]:
     return {w for w in _WORD.findall((text or "").lower()) if w not in _STOP and len(w) > 2}
 
 
-def suggest(notes: str, category: str, limit: int = 5) -> list[dict[str, Any]]:
-    """Rank templates for the notes: same-category first, then keyword overlap."""
+def suggest(notes: str, type_ids: list[str], limit: int = 5,
+            approved_only: bool = True) -> list[dict[str, Any]]:
+    """Rank library entries for the active enquiry types, then keyword overlap.
+
+    Only reviewed (approved) entries are offered as guidance unless approved_only=False.
+    """
     terms = _terms(notes)
     text = (notes or "").lower()
     scored = []
     for t in list_templates():
+        if approved_only and t["needs_review"]:
+            continue
         score = 0.0
-        if t["category"] == category:
-            score += 2.0
-        elif t["category"] == "general":
-            score += 0.3
+        if t["category"] in type_ids:
+            score += 2.0 if t["category"] == (type_ids[0] if type_ids else None) else 1.2
         for tag in t["tags"]:
             tag_l = tag.lower()
             if " " in tag_l and tag_l in text:
@@ -117,7 +132,7 @@ def suggest(notes: str, category: str, limit: int = 5) -> list[dict[str, Any]]:
             elif tag_l in terms:
                 score += 1.5
         score += 0.4 * len(terms & _terms(t["title"]))
-        if score > 0.3:
+        if score >= 1.5:
             scored.append((score, t))
     scored.sort(key=lambda x: (-x[0], x[1]["title"]))
     return [dict(t, score=round(s, 2)) for s, t in scored[:limit]]

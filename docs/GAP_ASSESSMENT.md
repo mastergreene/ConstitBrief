@@ -1,0 +1,47 @@
+# Gap assessment: ConstitBrief repository vs product brief v1.0
+
+Assessed 10 October 2026 against `docs/PRODUCT_BRIEF.md`.
+
+**Baseline.** Commit `20fb07b` was the "Moreton Casework Fast-Resolver" mobile PWA prototype. It was built the same day from an earlier plan (`docs/archive-first-prototype-plan.md`), and there was no other code in the repository.
+
+**Live Jotform.** The form was inspected on 10 October 2026 through its public HTML. The office website (julieanncampbell.com.au) embeds form `252413844700855` ("Web OfficeOne") in an iframe. The repository had no other Jotform integration beyond the prototype's URL builder.
+
+**Status.** "Before" is the state at `20fb07b`. "Now" is the state after this change.
+
+| # | Requirement (brief §) | Evidence at baseline | Before | Change made | Priority | Now |
+|---|---|---|---|---|---|---|
+| 1 | Verified form mapping with field IDs, types, required flags, branches, consent (§5) | Field names were typed from the earlier plan and never checked. `moreInformation` (a Services Australia-only field) was used for every category. Identifiers such as the TRN and DOB were made mandatory, but the form has no field for them. | Missing / incorrect | `scripts/snapshot_jotform.py` captures the live form (45 fields, 15 options, 17 conditions). The versioned mapping `jotform_252413844700855.mapping.json` is checked against the snapshot when the app starts and in tests. Generated doc: `docs/JOTFORM_MAPPING.md`. | P0 | Working. Routing is unverified (#2). |
+| 2 | Preserve the five email destinations and their conditions (§2, §5) | Not addressed | Missing | Routing can't be seen without account access. It's documented as **unverified**. Server-side API submission was rejected because Jotform support says API submissions don't fire notifications. Every submission goes through the real form. | P0 | Blocked on office access |
+| 3 | No sensitive notes or identifiers in prefill URLs (§5) | The prototype put notes, CRN, DOB and address into the URL | **Violated** | The URL carries only `typeA` by default. Contact prefill is opt-in through `JOTFORM_PREFILL_CONTACT`. Everything else goes field by field through copy buttons. Tests assert no secrets appear in the URL. | P0 | Working |
+| 4 | Explicit staff submission; prepared ≠ confirmed; recoverable (§3.7–8, §9) | Opening the link was treated as "lodged" | Partial | Handoff state machine: prepared → opened (shown as **not confirmed**) → reported by staff → confirmed. Confirmation uses an optional read-only API lookup of the reference. A stale review blocks opening. | P0 | Working |
+| 5 | Duplicate prevention on retry or double-click (§9) | None | Missing | One live handoff per interaction and option. Re-preparing reuses it. After a submission, a duplicate is refused unless staff confirm an "additional" one. Buttons are disabled while requests are in flight, and repeat `opened` calls are idempotent. | P0 | Working |
+| 6 | Authenticate staff and MPs (§9) | Optional shared access code | Partial | Per-user accounts with scrypt hashes, HttpOnly SameSite=Strict session cookies, login throttling, roles (staff, MP, admin), a CSRF header and a management CLI. | P0 | Working |
+| 7 | No indefinite browser storage of casework (§7) | The open call was kept in `localStorage` indefinitely | **Violated** | Recovery now uses `sessionStorage` (tab only) plus a server draft that expires after `DRAFT_RETENTION_HOURS`, default 72. "Finish & clear" wipes both. The service worker caches the app shell only. | P0 | Working |
+| 8 | Explicit new interaction that clears the previous person (§7) | A "New call" button kept data in localStorage | Partial | `resetWorkspace()` wipes memory, inputs, suggestions, drafts and session storage. An e2e test checks nothing leaks. | P0 | Working |
+| 9 | Live assistant updates without chat (§3.2, §6) | A manual "Triage" button | Missing | Debounced analysis (650 ms) with abort plus a sequence check, so stale responses are discarded. Status shows "Updating…" and the latency. Focus is kept. | P1 | Working |
+| 10 | Multiple enquiry types, responsible team, rationale and uncertainty (§4, §6) | Single category, no team | Missing | 19 enquiry types with evidence and confidence wording. A primary is chosen and catch-all types are suppressed. Team basis is "confirmed", "proposed" or "staff". Uncertainty triggers a clarifying question. | P1 | Working |
+| 11 | Responsible team ≠ enquiry type ≠ action ≠ email destination (§4) | Conflated | Missing | Separate concepts in `taxonomy.py`. Email destinations aren't modelled because they belong to Jotform. | P1 | Working |
+| 12 | Extracted facts with note evidence; never infer names, consent, refs or deadlines (§6) | Regex autofill. Consent was **inferred** from notes. | **Violated** | Proposals carry the exact note text and need staff to Use or reject them. Names and consent are never extracted. Dates need confirmation. | P0 | Working |
+| 13 | Staff edits authoritative; contradictions surfaced (§6) | The model could overwrite | Missing | Staff values are never replaced. When the notes disagree, a contradiction is raised. Rejected values and dismissed questions are remembered. | P1 | Working |
+| 14 | Checklist statuses collected / missing / unclear / N/A; readiness mandatory vs optional (§6) | Single missing list | Partial | Three bases (form-required, form-optional, suggestion), four statuses, and readiness per handoff. Only form-required fields block. | P1 | Working |
+| 15 | Prioritised next questions; no repeats (§6) | Static "ask" lines | Partial | Order: contradictions, deadlines, unclear mandatory, clarification, then missing items for the primary type. Answered and dismissed questions are dropped. Maximum five. | P1 | Working |
+| 16 | Follow-up actions and deadlines (§6) | None | Missing | Suggested actions need staff approval. Stated deadlines are highlighted and must be confirmed in exact wording. | P1 | Working |
+| 17 | Editable summary of issue and requested outcome (§6) | None | Missing | Summary fields with suggestions from the notes. The staff text goes into the form's description field. | P1 | Working |
+| 18 | Procedural guidance only from approved sources (§6) | 19 unverified seed responses offered as advice | **Violated** | The library is admin-only. Entries reach staff only after an explicit admin approval with name and date, and any edit sends them back to review. | P1 | Working. Content awaits office review. |
+| 19 | No promises of grants, outcomes or attendance (§6) | Drafts said "will raise this directly" | Partial | Draft wording reviewed and tested ("check her availability", "can't guarantee funding"). | P1 | Working |
+| 20 | Configurable, approved AI provider; minimal data (§6, §9) | Jev called whenever a key was set, notes redacted | Partial | `ANALYSIS_PROVIDER=rules` by default, so nothing leaves the server. Jev is opt-in, receives redacted notes only, and answers are validated against known keys. Notes are treated as data. | P1 | Working. Provider approval pending. |
+| 21 | AI failure doesn't block intake or handoff (§7) | Partly | Partial | Rules run locally. Model failure drops back to rules. Network failure leaves manual entry, work-type selection and handoff available. Tested. | P1 | Working |
+| 22 | Desktop two-panel layout; accessible panel switching on mobile (§7) | Mobile-only tabs | Partial | Notes on the left and assistant on the right at ≥1000 px. ARIA tablist with arrow keys. Notes are kept when switching. | P2 | Working |
+| 23 | Accessibility: labels, focus, contrast, non-colour status, controlled SR updates (§7) | Partial | Partial | Every status has a text label and symbol (✓ ✗ ?). One polite live region with summarised, de-duplicated announcements. Visible focus and a skip link. | P2 | Working. No formal audit yet. |
+| 24 | Latency target of 2 s (§7) | Not measured | Missing | Measured at 678–683 ms from typing pause to updated suggestions (650 ms of that is debounce). Server analysis takes 2–17 ms. | P2 | Measured |
+| 25 | Coverage of all office workflows incl. parliamentary and ministerial (§2, §4) | Casework categories only | Partial | Parliamentary, ministerial, media, grants, events, donations, flags, congratulations, volunteers and admin. Ownership is "staff" where unconfirmed. | P1 | Working. Office checklists pending. |
+| 26 | Portable record; no new permanent case database (§8) | A `cases` table kept for 30 days | Partial | The interaction is a short-lived draft. The handoff log holds no case content. The old `cases` table is dropped on start. | P1 | Working |
+| 27 | Routing verified with synthetic records in a controlled environment (§10, §11.4) | None | Missing | A procedure is documented in `docs/TEST_EVIDENCE.md`. It can't be executed without a test form or account access. | P1 | **Blocked** |
+
+## What was kept from the prototype
+
+The FastAPI and vanilla-JS stack (no build step), SQLite, the scoped government search, the draft generator (with reworded copy) and the library storage were kept. The welfare red-flag referrals and TFN handling were also kept.
+
+## What was removed
+
+The URL-based Jotform prefill containing notes and identifiers, `localStorage` persistence of cases, consent inference, dictation and the shared access code were removed. Dictation was dropped because browser speech recognition can send audio to third-party services, and the brief doesn't require transcription.

@@ -1,19 +1,37 @@
 {
-  "name": "Moreton Casework Fast-Resolver",
-  "short_name": "Casework",
-  "description": "First-contact resolution and casework intake for the Moreton electorate office.",
+  "name": "ConstitBrief",
+  "short_name": "ConstitBrief",
+  "description": "Live intake assistant for electorate office conversations.",
   "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "background_color": "#eef2f6",
   "theme_color": "#12355b",
   "lang": "en-AU",
-  "categories": ["productivity", "government"],
+  "categories": [
+    "productivity",
+    "government"
+  ],
   "icons": [
-    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

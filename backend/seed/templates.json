@@ -2,7 +2,7 @@
   {
     "slug": "privacy-consent-pack",
     "title": "Privacy & Consent Authorisation Pack",
-    "category": "general",
+    "category": "other_casework",
     "tags": [
       "consent",
       "privacy",
@@ -292,7 +292,7 @@
   {
     "slug": "ato-basics",
     "title": "ATO: getting help (and protecting your TFN)",
-    "category": "ato_nbn_dva",
+    "category": "ato",
     "tags": [
       "ato",
       "tax",
@@ -319,7 +319,7 @@
   {
     "slug": "nbn-connection-faults",
     "title": "NBN / internet faults: who to contact",
-    "category": "ato_nbn_dva",
+    "category": "nbn",
     "tags": [
       "nbn",
       "internet",
@@ -345,7 +345,7 @@
   {
     "slug": "dva-basics",
     "title": "DVA: contacts and support for veterans",
-    "category": "ato_nbn_dva",
+    "category": "dva",
     "tags": [
       "dva",
       "veteran",
@@ -371,7 +371,7 @@
   {
     "slug": "flags-portraits-eligibility",
     "title": "Flags & portraits: eligibility guidelines",
-    "category": "flags_messages",
+    "category": "flag",
     "tags": [
       "flag",
       "flags",
@@ -396,7 +396,7 @@
   {
     "slug": "milestone-messages-protocol",
     "title": "Birthday & anniversary congratulatory messages",
-    "category": "flags_messages",
+    "category": "congratulations",
     "tags": [
       "birthday",
       "anniversary",
@@ -427,7 +427,7 @@
   {
     "slug": "local-referrals-relief-housing-legal",
     "title": "Food relief, housing & legal referrals (Brisbane)",
-    "category": "general",
+    "category": "admin",
     "tags": [
       "food",
       "food relief",
@@ -458,7 +458,7 @@
   {
     "slug": "commonwealth-ombudsman",
     "title": "Complaints: the Commonwealth Ombudsman",
-    "category": "general",
+    "category": "other_casework",
     "tags": [
       "complaint",
       "complain",

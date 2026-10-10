@@ -22,7 +22,7 @@ def add(slug, title, category, tags, summary, sms, body, sources):
 
 # ---------------------------------------------------------------- Privacy ----
 add(
-    "privacy-consent-pack", "Privacy & Consent Authorisation Pack", "general",
+    "privacy-consent-pack", "Privacy & Consent Authorisation Pack", "other_casework",
     ["consent", "privacy", "authority", "authorisation", "signed", "form"],
     "Why we need written consent before contacting an agency, and how to return it.",
     "To help with your matter we need your signed privacy consent form - it lets the agency "
@@ -332,7 +332,7 @@ available at some Services Australia service centres.
 
 # --------------------------------------------------------- ATO / NBN / DVA ----
 add(
-    "ato-basics", "ATO: getting help (and protecting your TFN)", "ato_nbn_dva",
+    "ato-basics", "ATO: getting help (and protecting your TFN)", "ato",
     ["ato", "tax", "tax return", "refund", "tfn", "tax file number", "debt", "payment plan",
      "super", "superannuation", "scam"],
     "ATO contact options, payment plans, complaints and TFN safety.",
@@ -357,7 +357,7 @@ scammed, call the ATO straight away.
 )
 
 add(
-    "nbn-connection-faults", "NBN / internet faults: who to contact", "ato_nbn_dva",
+    "nbn-connection-faults", "NBN / internet faults: who to contact", "nbn",
     ["nbn", "internet", "broadband", "connection", "fault", "outage", "telstra", "optus",
      "tpg", "ombudsman", "tio"],
     "Retail provider first, then the Telecommunications Industry Ombudsman.",
@@ -380,7 +380,7 @@ priority assistance.
 )
 
 add(
-    "dva-basics", "DVA: contacts and support for veterans", "ato_nbn_dva",
+    "dva-basics", "DVA: contacts and support for veterans", "dva",
     ["dva", "veteran", "veterans", "gold card", "white card", "claim", "open arms", "defence",
      "adf", "myservice"],
     "DVA contact, MyService claims, Open Arms counselling, and free advocates.",
@@ -403,7 +403,7 @@ consent and DVA file number we can follow it up.
 
 # --------------------------------------------------------- Flags & messages --
 add(
-    "flags-portraits-eligibility", "Flags & portraits: eligibility guidelines", "flags_messages",
+    "flags-portraits-eligibility", "Flags & portraits: eligibility guidelines", "flag",
     ["flag", "flags", "australian flag", "aboriginal flag", "torres strait islander flag",
      "portrait", "king", "school", "community group", "constituents request program"],
     "What the office can provide under the Constituents' Request Program and who's eligible.",
@@ -437,7 +437,7 @@ and Cabinet's Constituents' Request Program guidelines before sending.]
 
 add(
     "milestone-messages-protocol", "Birthday & anniversary congratulatory messages",
-    "flags_messages",
+    "congratulations",
     ["birthday", "anniversary", "wedding anniversary", "100th", "90th", "60th", "50th", "65th",
      "70th", "congratulations", "message", "king", "governor-general", "centenarian", "milestone"],
     "Which milestones can get messages from the MP, Governor-General, PM and The King — and lead times.",
@@ -472,7 +472,7 @@ Please give us as much notice as possible — ideally 6 to 8 weeks before the da
 # ------------------------------------------------------------ Referrals ------
 add(
     "local-referrals-relief-housing-legal", "Food relief, housing & legal referrals (Brisbane)",
-    "general",
+    "admin",
     ["food", "food relief", "hungry", "homeless", "housing", "rent", "eviction", "legal",
      "lawyer", "legal aid", "emergency relief", "crisis", "financial counselling", "debt"],
     "Starting points for emergency relief, housing and free legal help on Brisbane's southside.",
@@ -506,7 +506,7 @@ Money
 )
 
 add(
-    "commonwealth-ombudsman", "Complaints: the Commonwealth Ombudsman", "general",
+    "commonwealth-ombudsman", "Complaints: the Commonwealth Ombudsman", "other_casework",
     ["complaint", "complain", "ombudsman", "unfair", "no response", "maladministration"],
     "When and how to escalate a complaint about an Australian Government agency.",
     "If you've complained to an Australian Government agency and it's not resolved, the "

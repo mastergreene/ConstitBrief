@@ -1,0 +1,330 @@
+{
+  "mapping_version": "2026-10-10.1",
+  "form_id": "252413844700855",
+  "form_url": "https://form.jotform.com/252413844700855",
+  "verified_against": "form_252413844700855.snapshot.json",
+  "verification": {
+    "fields_and_branches": "verified from public form HTML on 2026-10-10 (see snapshot)",
+    "required_fields": "verified from public form HTML (client-side 'required' validation)",
+    "notification_routing": "UNVERIFIED - the five email destinations and their conditions are not visible on the public form; requires authorised Jotform access or an office export",
+    "server_side_validation": "UNVERIFIED - Jotform may enforce additional rules on submit",
+    "uploads": "file upload fields cannot be prefilled or copied; staff attach files directly in Jotform"
+  },
+  "type_field": {
+    "qid": "9",
+    "label": "How can we help you?"
+  },
+  "common": [
+    {
+      "qid": "4",
+      "transform": "fullname",
+      "record": {
+        "first": "first_name",
+        "last": "last_name"
+      }
+    },
+    {
+      "qid": "120",
+      "transform": "text",
+      "record": "phone"
+    },
+    {
+      "qid": "5",
+      "transform": "text",
+      "record": "email"
+    },
+    {
+      "qid": "132",
+      "transform": "address",
+      "record": {
+        "addr_line1": "address_line1",
+        "addr_line2": "address_line2",
+        "city": "suburb",
+        "state": "state",
+        "postal": "postcode"
+      }
+    }
+  ],
+  "declarations": [
+    {
+      "qid": "135",
+      "text": "We ask for your address to ensure you are a resident of Moreton as this office is only able to respond to inquiries from within the electorate."
+    }
+  ],
+  "branches": {
+    "Help with a Services Australia issue": {
+      "section": "20",
+      "fields": [
+        {
+          "qid": "11",
+          "transform": "text",
+          "record": "crn"
+        },
+        {
+          "qid": "18",
+          "transform": "text",
+          "record": "payment_type"
+        },
+        {
+          "qid": "22",
+          "transform": "description"
+        }
+      ]
+    },
+    "Help with an Immigration issue": {
+      "section": "23",
+      "fields": [
+        {
+          "qid": "27",
+          "transform": "choice",
+          "record": "dha_acknowledged"
+        },
+        {
+          "qid": "25",
+          "transform": "text",
+          "record": "migration_agent"
+        },
+        {
+          "qid": "24",
+          "transform": "text",
+          "record": "visa_subclass"
+        },
+        {
+          "qid": "26",
+          "transform": "description"
+        },
+        {
+          "qid": "30",
+          "transform": "upload",
+          "note": "Visa refusal documents - attach in Jotform if applicable"
+        }
+      ]
+    },
+    "Help with an NDIS issue": {
+      "section": "34",
+      "fields": [
+        {
+          "qid": "35",
+          "transform": "text",
+          "record": "ndis_number"
+        },
+        {
+          "qid": "37",
+          "transform": "description"
+        }
+      ]
+    },
+    "Help with a MyAgedCare issue": {
+      "section": "41",
+      "fields": [
+        {
+          "qid": "42",
+          "transform": "text",
+          "record": "myagedcare_number"
+        },
+        {
+          "qid": "43",
+          "transform": "description"
+        }
+      ]
+    },
+    "Help with an ATO issue": {
+      "section": "46",
+      "fields": [
+        {
+          "qid": "47",
+          "transform": "date_text",
+          "record": "dob"
+        },
+        {
+          "qid": "48",
+          "transform": "description"
+        }
+      ]
+    },
+    "Help with an NBN issue": {
+      "section": "51",
+      "fields": [
+        {
+          "qid": "55",
+          "transform": "address",
+          "record": {
+            "addr_line1": "nbn_address_line1",
+            "city": "nbn_suburb",
+            "state": "nbn_state",
+            "postal": "nbn_postcode"
+          }
+        },
+        {
+          "qid": "53",
+          "transform": "description"
+        }
+      ]
+    },
+    "Help with a Veterans Affairs issue": {
+      "section": "56",
+      "fields": [
+        {
+          "qid": "57",
+          "transform": "text",
+          "record": "dva_number"
+        },
+        {
+          "qid": "58",
+          "transform": "description"
+        }
+      ]
+    },
+    "Help with another Issue": {
+      "section": "62",
+      "fields": [
+        {
+          "qid": "64",
+          "transform": "description"
+        }
+      ]
+    },
+    "Request a Congratulations Message": {
+      "section": "67",
+      "fields": [
+        {
+          "qid": "68",
+          "transform": "text",
+          "record": "recipient_title"
+        },
+        {
+          "qid": "72",
+          "transform": "fullname",
+          "record": {
+            "first": "recipient_first",
+            "last": "recipient_last"
+          }
+        },
+        {
+          "qid": "73",
+          "transform": "address",
+          "record": {
+            "addr_line1": "recipient_address_line1",
+            "city": "recipient_suburb",
+            "state": "recipient_state",
+            "postal": "recipient_postcode"
+          }
+        },
+        {
+          "qid": "78",
+          "transform": "text",
+          "record": "milestone"
+        },
+        {
+          "qid": "76",
+          "transform": "date_mdy",
+          "record": "milestone_date",
+          "label_override": "Anniversary date"
+        },
+        {
+          "qid": "77",
+          "transform": "date_mdy",
+          "record": "arrive_by_date",
+          "label_override": "Date the message should arrive"
+        },
+        {
+          "qid": "79",
+          "transform": "upload",
+          "note": "Proof of anniversary/birthday - attach in Jotform"
+        }
+      ]
+    },
+    "Request a Flag": {
+      "section": "80",
+      "fields": [
+        {
+          "qid": "81",
+          "transform": "text",
+          "record": "flag_reason"
+        },
+        {
+          "qid": "82",
+          "transform": "description",
+          "label_override": "What size they require"
+        }
+      ]
+    },
+    "Request a Donation/Sponsorship": {
+      "section": "85",
+      "fields": [
+        {
+          "qid": "89",
+          "transform": "date_mdy",
+          "record": "required_by_date",
+          "label_override": "When is the donation required by?"
+        },
+        {
+          "qid": "87",
+          "transform": "description",
+          "label_override": "What sort of event"
+        }
+      ]
+    },
+    "Grant Inquiries": {
+      "section": "90",
+      "fields": [
+        {
+          "qid": "92",
+          "transform": "description"
+        }
+      ]
+    },
+    "Invitation to an event": {
+      "section": "94",
+      "fields": [
+        {
+          "qid": "97",
+          "transform": "text",
+          "record": "event_location"
+        },
+        {
+          "qid": "98",
+          "transform": "date_mdy",
+          "record": "event_date",
+          "label_override": "Event date"
+        },
+        {
+          "qid": "99",
+          "transform": "choice",
+          "record": "speaking_requested",
+          "label_override": "Would you like Julie-Ann to speak?"
+        }
+      ]
+    },
+    "Media Inquiries": {
+      "section": "101",
+      "fields": [
+        {
+          "qid": "102",
+          "transform": "description"
+        }
+      ]
+    },
+    "Volunteer Inquiries": {
+      "section": "104",
+      "fields": [
+        {
+          "qid": "111",
+          "transform": "choice",
+          "record": "volunteer_interest"
+        },
+        {
+          "qid": "136",
+          "transform": "description"
+        }
+      ]
+    }
+  },
+  "known_form_issues": [
+    "A show/hide condition references the option 'Party Member Inquiry' (section 116, field 117) but that option is not in the 'How can we help you?' dropdown, so the section is unreachable.",
+    "Field 42 ('MyAgedCare Number') has the internal name 'ndisParticipant42' - harmless, but easy to confuse.",
+    "'Invitation to an event' has no free-text details field; event name, organiser and time must go into another channel or be added to the form.",
+    "Postcode is optional on the constituent address even though the residency statement relies on the address.",
+    "The form has no consent or authority field; consent capture, if required by office practice, happens outside the form."
+  ]
+}

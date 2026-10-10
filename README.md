@@ -1,160 +1,120 @@
-# Moreton Casework Fast-Resolver
+# ConstitBrief
 
-A mobile-first Progressive Web App for the Moreton electorate office. Caseworkers, staff and volunteers use it on the phone, at mobile offices or on the road.
+ConstitBrief is a live intake assistant for the Moreton electorate office. Staff and MPs type notes during a conversation. Without anyone having to send a chat message, the assistant then:
+* identifies the work involved
+* suggests a responsible team
+* lists the next questions to ask
+* tracks what's still missing
+* prepares a reviewed handoff into the office's existing Jotform
 
-* **Mode A: Resolve.** Type or dictate the call notes and tap **Triage**. The app shows matching standard advice, safety referrals when it detects risk words, and a live search scoped to official government sites. Copy the SMS or email and send it while the caller is still on the line.
-* **Mode B: Escalate.** When representations are needed, the **Ask Them Now** card lists every mandatory detail that is still missing, with a script for asking each one. Identifiers found in the notes (CRN, TRN, NDIS number and so on) can be filled in with one tap. **Open in Jotform** then opens the Web OfficeOne form fully prefilled. The app also writes an acknowledgement signed "Team Moreton".
+The AI suggests and staff decide. Nothing is submitted automatically.
 
----
+Documentation:
+* `docs/PRODUCT_BRIEF.md`: requirements baseline (v1.0)
+* `docs/GAP_ASSESSMENT.md`: repo vs brief, before and after
+* `docs/JOTFORM_MAPPING.md`: verified field mapping (generated)
+* `docs/DECISIONS.md`: unresolved configuration decisions
+* `docs/TEST_EVIDENCE.md`: acceptance scenarios, latency, routing test procedure
 
-## Architecture
+## Pilot readiness
+
+**Ready for a supervised pilot (synthetic data first, then real conversations):**
+* Live notes → assistant: work types with evidence, team suggestion, next questions, checklist, readiness, dates and deadlines, contradictions, editable summary, follow-up actions.
+* Staff edits are authoritative. Suggestions from the notes must be accepted, and names, consent, eligibility and deadlines are never inferred.
+* Reviewed handoff into Jotform form `252413844700855`:
+  * The field mapping has been checked against the live form.
+  * Mandatory form fields block the handoff.
+  * Duplicates are prevented.
+  * "Opened" is clearly separated from "submitted" and "confirmed".
+* Sign-in per user, short-lived server drafts, explicit "Finish & clear", no sensitive data in URLs, and no case data in browser storage beyond the current tab.
+* Works with no AI provider at all (the default).
+
+**Blocked or unverified. Don't claim these are complete:**
+* **Email routing.** The five Jotform notification destinations and their conditions are not visible publicly (D1). ConstitBrief doesn't touch routing, because every submission goes through the real form. However, which team each option reaches hasn't been verified. Run the synthetic routing procedure in `docs/TEST_EVIDENCE.md` once the office provides access.
+* **Ownership.** Team ownership for grants, events and other community requests is *proposed*. Parliamentary, ministerial and volunteer work is *staff to decide* (D3).
+* **Checklists and consent.** Office checklists and consent practice haven't been supplied (D4, D5). All non-form prompts are labelled as suggestions and never block.
+* **Guidance library.** The 19 seed entries are unreviewed and are **not shown to staff** until an admin approves each one.
+* **AI provider.** Jev on OpenRouter is implemented and tested against the documented API, but it's off until the office approves the data flow (D6). Its latency hasn't been measured.
+
+## How it works
 
 ```
-PWA (vanilla JS, no build step) ──HTTPS──> FastAPI (Python) ──> SQLite
-  offline shell (service worker)               ├─ /api/triage    rules + Jev decision gate ──> OpenRouter Decisions API
-  local autosave of the open call              ├─ /api/search    Brave / Google CSE, allow-listed gov domains
-  offline checklist + Jotform link             ├─ /api/templates standard-response library (CRUD)
-                                               ├─ /api/generate  template drafts (+ optional model polish via OpenRouter)
-                                               ├─ /api/jotform   prefill URL builder
-                                               └─ /api/cases     recent calls (auto-purged)
+Notes (staff) ──► /api/analyse ──► rules engine (always) ──► suggestions only
+                      │                └─ optional Jev (OpenRouter), redacted notes, validated answers
+Staff record (authoritative) ──► deterministic validation against the verified Jotform mapping
+                      │
+Review & hand off ──► field-by-field copy + form link (enquiry option only)
+                      └─► staff submit in the real Jotform ──► Jotform's existing email routing
+                           status: prepared → opened (not confirmed) → reported → confirmed*
+* confirmed = reference found through an optional read-only Jotform API key
 ```
 
+* **Why not submit server-side?** Jotform support states that API-created submissions don't trigger the form's email notifications. That would bypass the office's routing, and the brief rules out building a parallel email sender.
+* **Mapping is verified, not typed in.** `scripts/snapshot_jotform.py` captures the live form's structure. The versioned mapping (`backend/app/mapping/*.mapping.json`) is checked against that snapshot when the app starts and in tests. `--check` reports form drift.
+* **Three sources of requirements, kept apart.** These are form-required (can block), form-optional, and suggested prompts (never block). See `backend/app/services/taxonomy.py`.
+
 ```
-.
-├── backend/
-│   ├── app/
-│   │   ├── main.py            FastAPI app; serves API and PWA
-│   │   ├── config.py          env / .env settings
-│   │   ├── db.py              SQLite schema, seeding, retention purge
-│   │   ├── security.py        access-code middleware, CSP & security headers
-│   │   ├── schemas.py         request models
-│   │   ├── routers/api.py     all /api routes
-│   │   └── services/
-│   │       ├── rules.py       categories, form fields, mandatory fields, extraction, safety flags
-│   │       ├── jev.py         TypeSafe Jev client (POST /api/alpha/decisions)
-│   │       ├── triage.py      combines rules + Jev into one result
-│   │       ├── search.py      scoped gov search, cache, contact directory
-│   │       ├── templates.py   library storage + matching
-│   │       ├── drafts.py      "Team Moreton" drafts
-│   │       └── jotform.py     Jotform prefill builder
-│   ├── seed/
-│   │   ├── build_seed.py      source of the seed responses (edit here)
-│   │   └── templates.json     generated seed data (19 responses)
-│   └── tests/                 pytest suite (incl. JS/Python Jotform parity)
-├── frontend/
-│   ├── index.html  manifest.webmanifest  sw.js
-│   ├── css/app.css            hand-written, light + dark, 48px+ touch targets
-│   ├── js/                    app.js api.js store.js jotform.js requirements.js speech.js
-│   └── icons/
-├── scripts/run.sh  scripts/make_icons.py
-├── Dockerfile  requirements.txt  .env.example
+backend/app/
+  main.py, config.py, db.py, auth.py, security.py, manage.py, schemas.py
+  routers/api.py
+  mapping/        form snapshot + versioned field mapping
+  services/
+    taxonomy.py   enquiry types, teams, record fields, suggested prompts
+    extract.py    identifier/date/outcome proposals with evidence, safety flags, redaction
+    analysis.py   live assistant (staff state in, suggestions out)
+    jev.py        optional TypeSafe Jev provider (Decisions API)
+    formmap.py    mapping, validation, handoff rows, URL policy
+    handoff.py    handoff state machine, duplicate guard, read-only verification
+    templates.py, search.py, drafts.py   approved guidance, gov search, acknowledgement drafts
+frontend/          vanilla JS app, no build step (index.html, css/app.css, js/app.js, js/api.js)
+scripts/           snapshot_jotform.py, render_mapping_doc.py, make_icons.py, run.sh
+tests/e2e/         browser acceptance scenarios (Playwright)
 ```
-
-`backend/app/services/rules.py` is the single source of truth for fields and requirements. The PWA gets them from `/api/meta` and caches them, so the checklist and the Jotform link keep working offline.
-
-### The Jev decision gate
-
-`/api/triage` sends one request to `POST https://openrouter.ai/api/alpha/decisions` with model `typesafe/jev-1.13`. It asks these typed questions:
-
-| Question | Primitive | Used for |
-|---|---|---|
-| `category` | choice over the 7 categories | auto-detecting the category |
-| `needs_representation` | noul | Resolve vs Escalate recommendation |
-| `urgency` | score (routine / time-sensitive / urgent) | urgency pill |
-| `notes_cover__<item>` | noul per open checklist item | "Mentioned in notes – confirm" hints |
-
-Jev is layered on top of a deterministic rules engine and never replaces it:
-
-* **Deterministic.** Required fields come from the rules engine. Jev only adds "might be in the notes" hints.
-* **Overrides.** A category the caseworker picks always wins over Jev's guess.
-* **Fallback.** If there is no key, or the call times out (`JEV_TIMEOUT_SECONDS`, default 6s) or fails, triage falls back to rules only. The header shows which engine was used.
-
-### Privacy by design
-
-* **Data sent to Jev and the drafting model.** Both receive PII-redacted notes only.
-  * The following are stripped before sending:
-    * phone numbers and emails
-    * CRN, NDIS, My Aged Care, TRN and DVA numbers
-    * dates and TFNs
-    * any name, street, suburb or other value already typed into a personal field
-  * Drafts use a `{FIRST_NAME}` placeholder, and the real name is inserted locally afterwards.
-  * **Limitation:** a name that appears *only* in the free-text notes can't be detected reliably, so keep third-party names out of the notes where you can.
-* **Search queries.** Queries are built from the notes with identifiers removed. Capitalised words that aren't known policy terms are also removed (they are usually names). The caseworker can still see and edit the query before searching.
-* **TFNs.** The app warns when a TFN is typed and redacts it from saved cases and Jotform notes. The ATO field asks for a case reference, never a TFN.
-* **Saved cases.** Recent cases are purged after `CASE_RETENTION_DAYS` (default 30).
-* **Service worker caching.** The service worker never caches triage, case or draft responses. Only the app shell, `/api/meta` and the template library are cached.
-* **Access control.** `APP_ACCESS_TOKEN` gates every API route. Each device enters the code once.
-
----
 
 ## Setup
 
-### Run locally
-
 ```bash
-cp .env.example .env        # then fill in keys (all optional)
-./scripts/run.sh            # creates .venv, installs deps, starts on http://127.0.0.1:8787
+cp .env.example .env              # defaults are conservative; see docs/DECISIONS.md
+pip install -r requirements.txt   # or ./scripts/run.sh, which creates .venv and starts the server
+python -m backend.app.manage add-user jsmith "Jo Smith" --role admin   # prompts for a password
+python -m backend.app.manage add-user mp "Julie-Ann Campbell" --role mp
+python -m backend.app.main        # http://127.0.0.1:8787
 ```
 
-Or manually: `pip install -r requirements.txt && python -m backend.app.main`.
-Or with Docker: `docker build -t casework . && docker run -p 8787:8787 -v casework-data:/data --env-file .env casework`.
+Roles:
+* **staff:** intake and handoff.
+* **mp:** the same as staff.
+* **admin:** can also approve guidance library entries.
 
-### Configuration (`.env`)
+Other management commands are `list-users`, `set-password` (this ends the user's sessions), `deactivate` and `check-mapping`.
 
-| Variable | Purpose |
-|---|---|
-| `APP_ACCESS_TOKEN` | Shared office access code. **Set this before exposing beyond localhost.** |
-| `OPENROUTER_API_KEY` | Enables the Jev decision gate (and draft polishing). |
-| `JEV_MODEL` | Default `typesafe/jev-1.13`. `~typesafe/jev-latest` also works, but pinning keeps behaviour stable. |
-| `GENERATE_MODEL` | Optional OpenRouter chat model for polishing drafts. Blank means template drafts only. |
-| `BRAVE_API_KEY` *or* `GOOGLE_CSE_KEY` + `GOOGLE_CSE_CX` | Live gov search. Without one, search shows site-restricted search links and the contact directory instead. |
-| `SEARCH_DOMAINS` | Allow-list. Results from other domains are dropped server-side. |
-| `JOTFORM_TYPEA_MAP` | JSON mapping each category to the **exact** option text of the form's `typeA` dropdown (see below). |
-| `CASE_RETENTION_DAYS` | Auto-purge for saved calls (default 30). |
-| `OFFICE_PHONE`, `OFFICE_EMAIL` | Added under the "Team Moreton" sign-off if set. |
+**Local development over plain HTTP:** set `COOKIE_SECURE=false`, or the session cookie won't be sent.
 
-### Expose to staff phones
+### Expose to staff (Tailscale recommended)
 
-Service workers, home-screen install and the microphone all need **HTTPS**, except on `localhost`. A plain `http://192.168.x.x:8787` address will load, but it won't install or work offline.
+Keep `HOST=127.0.0.1`, enable MagicDNS and HTTPS certificates for the tailnet, then run:
 
-**Tailscale (recommended).** You get HTTPS, there are no open ports, and only devices on the office tailnet can reach it.
+```bash
+tailscale serve --bg 8787        # https://<machine>.<tailnet>.ts.net (tailnet devices only)
+```
 
-1. In the Tailscale admin console, enable **MagicDNS** and **HTTPS certificates**.
-2. On the machine running the app (leave `HOST=127.0.0.1`), run:
-   ```bash
-   tailscale serve --bg 8787
-   ```
-3. Staff install Tailscale on their phones and open `https://<machine>.<tailnet>.ts.net`.
-   * **iOS:** Safari → Share → **Add to Home Screen**.
-   * **Android:** Chrome → **Install app**.
-4. Set `APP_ACCESS_TOKEN` as a second layer of protection.
+Don't use `tailscale funnel`, because that makes the app public. Docker: `docker build -t constitbrief . && docker run -p 127.0.0.1:8787:8787 -v cb-data:/data --env-file .env constitbrief`.
 
-**Local network only.** Put a TLS reverse proxy in front of the app (for example Caddy with an internal CA, or `mkcert`), set `HOST=127.0.0.1`, and point the proxy at port 8787. Don't use `tailscale funnel`, which would make the app public.
+## Data handling
 
----
+* **Server drafts.** Notes and the staff record are held in a server draft that expires after `DRAFT_RETENTION_HOURS` (default 72). "Finish & clear" wipes it immediately. The handoff log keeps only references and status, with no notes or field values.
+* **Browser.** The browser keeps the current draft in `sessionStorage` (this tab only) for crash recovery. The service worker caches the app shell, never API responses.
+* **Data sent to an AI provider.** With an AI provider enabled, only redacted notes are sent. Identifiers, phone, email, dates, TFNs and any personal value already typed into the record are removed first. Names that appear *only* in free text can't be reliably detected.
+* **Jotform URL.** The form link carries the enquiry option only. Contact prefill is a separate opt-in (D9).
+* **TFNs.** TFNs trigger a warning and are stripped from handoff text.
 
-## Before go-live checklist
-
-1. **Jotform field names.**
-   * The prefill uses the parameter names in the brief: `name[first]`, `name[last]`, `phoneNumber120`, `email`, `address132[...]`, `typeA`, `crn`, `moreInformation`.
-   * Open a generated link and confirm each field fills in.
-   * If the phone field is a Jotform *phone* widget, it may need `phoneNumber120[full]`. Change it in `PARAMS` in `backend/app/services/jotform.py` **and** in `frontend/js/jotform.js`. The parity test will flag any mismatch.
-2. **`typeA` values.** Jotform only accepts the dropdown's exact option text. Set `JOTFORM_TYPEA_MAP`, for example:
-   `{"services_australia":"Centrelink","immigration":"Immigration","ndis":"NDIS","aged_care":"Aged Care","ato_nbn_dva":"Other Federal","flags_messages":"Flags / Messages","general":"General"}`
-3. **Review every seed response.**
-   * All 19 ship tagged **needs review / verify**. Check each against its source links, adjust it to office practice, then save it in **Library**, which marks it reviewed.
-   * Pay particular attention to the flags program items and the milestone-message eligibility. Both carry `[STAFF: …]` notes.
-   * Add the office's preferred local southside services to the referrals response.
-4. **Office details.** Set `OFFICE_PHONE` and `OFFICE_EMAIL` so drafts include them.
-
-## Development
+## Tests
 
 ```bash
 pip install -r requirements-dev.txt
-python -m pytest backend/tests          # 29 tests; the Jotform parity test needs node
-python backend/seed/build_seed.py       # regenerate templates.json after editing seeds
+python -m pytest backend/tests                         # 60 tests
+COOKIE_SECURE=false python -m backend.app.main &       # then, with a test user created:
+BASE_URL=http://127.0.0.1:8787 USER_NAME=<user> PASS=<password> node tests/e2e/acceptance.mjs
+python scripts/snapshot_jotform.py --check             # has the live form changed?
+python scripts/render_mapping_doc.py                   # regenerate docs/JOTFORM_MAPPING.md
 ```
-
-Seeds are only inserted when their slug is missing, so office edits are never overwritten. `POST /api/templates/reseed` adds new seeds to an existing database. Interactive API docs are at `/api/docs`.
-
-**Design note.** The brief suggested Tailwind. The UI uses a small hand-written stylesheet instead, so there is no build step, no CDN dependency and nothing that breaks offline. It is also compatible with the strict Content-Security-Policy (`script-src 'self'`).

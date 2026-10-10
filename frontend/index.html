@@ -3,14 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Moreton Casework</title>
-  <meta name="description" content="Casework fast-resolver for the Moreton electorate office.">
+  <title>ConstitBrief</title>
+  <meta name="description" content="Live intake assistant for electorate office conversations.">
   <meta name="theme-color" content="#12355b" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0b1726" media="(prefers-color-scheme: dark)">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Casework">
   <meta name="referrer" content="no-referrer">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" href="/icons/icon-192.png" type="image/png">
@@ -19,194 +15,196 @@
   <script type="module" src="/js/app.js"></script>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <img src="/icons/icon-192.png" alt="" width="28" height="28">
-      <div>
-        <strong>Moreton Casework</strong>
-        <span id="engine-status" class="muted small">Starting…</span>
-      </div>
-    </div>
-    <div class="topbar-actions">
-      <span id="net-status" class="pill pill-ok" aria-live="polite">Online</span>
-      <button id="btn-new-case" class="btn btn-ghost btn-sm" type="button">New call</button>
-    </div>
-  </header>
+  <a class="skip" href="#notes">Skip to notes</a>
 
-  <main id="main">
-    <!-- ===================== Shared intake (Resolve + Escalate) ===================== -->
-    <section id="intake" class="card intake" aria-label="Call intake">
-      <div class="chips" id="category-chips" role="radiogroup" aria-label="Category"></div>
-
-      <label for="notes" class="label">What's the constituent telling you?</label>
-      <div class="notes-wrap">
-        <textarea id="notes" rows="4" placeholder="Rough notes or tap the mic…" autocomplete="off" spellcheck="true"></textarea>
-        <button id="btn-mic" class="mic" type="button" aria-label="Start dictation" aria-pressed="false">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12Z"/></svg>
-        </button>
-      </div>
-      <p id="tfn-warning" class="alert alert-warn" hidden>
-        Looks like a Tax File Number is in the notes. Please delete it — TFNs must not be recorded.
-      </p>
-      <div class="row">
-        <button id="btn-triage" class="btn btn-primary btn-block" type="button">Triage</button>
-      </div>
-
-      <div id="safety" class="safety" hidden></div>
-      <div id="triage-summary" class="triage-summary" hidden></div>
-    </section>
-
-    <!-- ===================== Mode A: Resolve ===================== -->
-    <section id="view-resolve" class="view" data-view="resolve">
-      <div class="card">
-        <div class="card-head">
-          <h2>Standard advice</h2>
-          <span class="muted small" id="advice-hint">Triage the call to see matches</span>
-        </div>
-        <ul id="advice-list" class="list"></ul>
-      </div>
-
-      <div class="card" id="resolution-card">
-        <div class="card-head">
-          <h2>Send the answer</h2>
-          <span class="muted small"><span id="selected-count">0</span> selected</span>
-        </div>
-        <p class="muted small">Tick “Add” on the advice above, then build a message.</p>
-        <button id="btn-gen-resolution" class="btn btn-primary btn-block" type="button" disabled>Build SMS &amp; email</button>
-        <div id="resolution-output" class="draft-output" hidden></div>
-      </div>
-
-      <div class="card">
-        <div class="card-head"><h2>Live gov search</h2><span class="muted small" id="search-provider"></span></div>
-        <form id="search-form" class="search-row" autocomplete="off">
-          <input id="search-q" type="search" placeholder="e.g. carer payment eligibility" aria-label="Search government sites" enterkeyhint="search">
-          <button class="btn btn-primary" type="submit">Search</button>
-        </form>
-        <div id="search-domains" class="chips chips-sm"></div>
-        <div id="search-results" aria-live="polite"></div>
-      </div>
-    </section>
-
-    <!-- ===================== Mode B: Escalate ===================== -->
-    <section id="view-escalate" class="view" data-view="escalate" hidden>
-      <div class="card ask-card" id="ask-card">
-        <div class="card-head">
-          <h2>Ask them now</h2>
-          <span class="pill" id="completeness-pill">0%</span>
-        </div>
-        <div class="progress" aria-hidden="true"><div class="progress-bar" id="completeness-bar"></div></div>
-        <ul id="ask-list" class="ask-list"></ul>
-        <p id="ask-done" class="alert alert-ok" hidden>Everything we need is captured. You're good to lodge.</p>
-      </div>
-
-      <div id="extracted" class="card" hidden>
-        <div class="card-head"><h2>Found in your notes</h2>
-          <button id="btn-apply-extracted" class="btn btn-sm btn-primary" type="button">Fill all</button></div>
-        <div id="extracted-list" class="chips"></div>
-      </div>
-
-      <form id="case-form" class="card" autocomplete="off" novalidate>
-        <h2>Constituent</h2>
-        <div id="fields-constituent" class="grid"></div>
-        <h2>Matter</h2>
-        <div id="fields-matter" class="grid"></div>
-      </form>
-
-      <div class="card jotform-card">
-        <h2>Lodge in Web OfficeOne</h2>
-        <p id="jotform-warning" class="alert alert-warn small" hidden></p>
-        <a id="btn-jotform" class="btn btn-accent btn-block btn-lg" href="#" target="_blank" rel="noopener noreferrer">Open in Jotform</a>
-        <div class="row">
-          <button id="btn-copy-casenotes" class="btn btn-ghost btn-block" type="button">Copy case notes</button>
-          <button id="btn-mark-lodged" class="btn btn-ghost btn-block" type="button">Mark lodged</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Acknowledgement draft</h2>
-        <p class="muted small">Warm, local, signed off from the team. Review before sending.</p>
-        <button id="btn-gen-ack" class="btn btn-primary btn-block" type="button">Write acknowledgement</button>
-        <div id="ack-output" class="draft-output" hidden></div>
-      </div>
-    </section>
-
-    <!-- ===================== Library ===================== -->
-    <section id="view-library" class="view" data-view="library" hidden>
-      <div class="card">
-        <div class="search-row">
-          <input id="lib-q" type="search" placeholder="Search standard responses" aria-label="Search library">
-          <button id="btn-lib-new" class="btn btn-primary" type="button">New</button>
-        </div>
-        <select id="lib-category" aria-label="Filter by category"></select>
-      </div>
-      <ul id="lib-list" class="list"></ul>
-    </section>
-
-    <!-- ===================== Recent ===================== -->
-    <section id="view-recent" class="view" data-view="recent" hidden>
-      <div class="card">
-        <h2>Recent calls</h2>
-        <p class="muted small" id="recent-note">Saved on the office server and purged automatically.</p>
-        <ul id="recent-list" class="list"></ul>
-      </div>
-    </section>
+  <!-- ============================ Sign in ============================ -->
+  <main id="login-view" class="login" hidden>
+    <form id="login-form" class="card login-card" autocomplete="on">
+      <h1>ConstitBrief</h1>
+      <p class="muted">Sign in with your office account.</p>
+      <label class="label" for="login-username">Username</label>
+      <input id="login-username" name="username" autocomplete="username" required>
+      <label class="label" for="login-password">Password</label>
+      <input id="login-password" name="password" type="password" autocomplete="current-password" required>
+      <p id="login-error" class="alert alert-danger" role="alert" hidden></p>
+      <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+    </form>
   </main>
 
-  <nav class="tabbar" aria-label="Sections">
-    <button class="tab active" data-target="resolve" type="button" aria-current="page">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>
-      <span>Resolve</span>
-    </button>
-    <button class="tab" data-target="escalate" type="button">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3h-2v10h2V3Zm4.83 2.17-1.42 1.42A6.92 6.92 0 0 1 19 12a7 7 0 1 1-11.41-5.41L6.17 5.17A8.93 8.93 0 0 0 3 12a9 9 0 0 0 18 0 8.93 8.93 0 0 0-3.17-6.83Z"/></svg>
-      <span>Escalate</span><i class="dot" id="escalate-dot" hidden></i>
-    </button>
-    <button class="tab" data-target="library" type="button">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6H2v14a2 2 0 0 0 2 2h14v-2H4V6Zm16-4H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2Zm-1 9H9V9h10v2Zm-4 4H9v-2h6v2Zm4-8H9V5h10v2Z"/></svg>
-      <span>Library</span>
-    </button>
-    <button class="tab" data-target="recent" type="button">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6a7 7 0 1 1 2.05 4.95l-1.42 1.42A9 9 0 1 0 13 3Zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12Z"/></svg>
-      <span>Recent</span>
-    </button>
-  </nav>
+  <!-- ============================ App ============================ -->
+  <div id="app-view" hidden>
+    <header class="topbar">
+      <div class="brand">
+        <strong>ConstitBrief</strong>
+        <span class="small">Interaction <span id="inter-ref">–</span></span>
+      </div>
+      <div class="status-strip" aria-label="Status">
+        <span id="save-status" class="status"><span class="dot" aria-hidden="true"></span><span class="txt">Not saved</span></span>
+        <span id="analysis-status" class="status"><span class="dot" aria-hidden="true"></span><span class="txt">Assistant idle</span></span>
+      </div>
+      <div class="topbar-actions">
+        <button id="btn-drafts" class="btn btn-ghost btn-sm" type="button">Open draft</button>
+        <button id="btn-library" class="btn btn-ghost btn-sm" type="button" hidden>Library</button>
+        <button id="btn-new" class="btn btn-sm btn-light" type="button">New interaction</button>
+        <button id="btn-user" class="btn btn-ghost btn-sm" type="button" aria-haspopup="true"><span id="user-name"></span> · Sign out</button>
+      </div>
+    </header>
 
-  <!-- Template editor -->
-  <dialog id="tmpl-dialog" class="sheet">
+    <!-- Polite, throttled summary for screen readers (not every update). -->
+    <div id="sr-status" class="visually-hidden" role="status" aria-live="polite"></div>
+
+    <nav class="panel-tabs" role="tablist" aria-label="Panels">
+      <button role="tab" id="tab-notes" aria-controls="panel-notes" aria-selected="true" data-panel="notes" type="button">Notes</button>
+      <button role="tab" id="tab-assistant" aria-controls="panel-assistant" aria-selected="false" data-panel="assistant" type="button">Assistant <span class="badge" id="badge-missing" hidden></span></button>
+      <button role="tab" id="tab-handoff" aria-controls="panel-handoff" aria-selected="false" data-panel="handoff" type="button">Review &amp; hand off</button>
+    </nav>
+
+    <div class="workspace">
+      <!-- ------------------------------ Notes ------------------------------ -->
+      <section id="panel-notes" class="panel panel-notes" role="tabpanel" aria-labelledby="tab-notes">
+        <label for="notes" class="notes-label">Conversation notes</label>
+        <p class="muted small" id="notes-help">Type as you talk. The assistant updates when you pause. Notes are data for this interaction only.</p>
+        <textarea id="notes" aria-describedby="notes-help" spellcheck="true" autocomplete="off"
+          placeholder="e.g. President of a local sporting club called about funding for equipment and wants Julie-Ann at their presentation night…"></textarea>
+        <p id="tfn-warning" class="alert alert-warn" hidden>⚠ A Tax File Number appears in the notes. Please delete it. TFNs must not be recorded.</p>
+      </section>
+
+      <!-- ---------------------------- Assistant ---------------------------- -->
+      <section id="panel-assistant" class="panel panel-assistant" role="tabpanel" aria-labelledby="tab-assistant" hidden>
+        <div id="sec-alerts"></div>
+
+        <section class="card" aria-labelledby="h-work">
+          <h2 id="h-work">Work involved</h2>
+          <div id="sec-types"></div>
+          <div class="row wrap">
+            <label class="label inline" for="add-type">Add work type</label>
+            <select id="add-type"></select>
+          </div>
+          <div id="sec-team"></div>
+        </section>
+
+        <section class="card" aria-labelledby="h-ask">
+          <h2 id="h-ask">Ask next</h2>
+          <ol id="sec-questions" class="questions"></ol>
+        </section>
+
+        <section class="card" aria-labelledby="h-ready">
+          <h2 id="h-ready">Readiness</h2>
+          <div id="sec-ready"></div>
+          <details id="checklist-details">
+            <summary>Full checklist</summary>
+            <div id="sec-checklist"></div>
+          </details>
+        </section>
+
+        <section class="card" aria-labelledby="h-details">
+          <h2 id="h-details">Details</h2>
+          <p class="muted small">Your entries are final. Suggestions from the notes need you to accept them.</p>
+          <div id="sec-details"></div>
+        </section>
+
+        <section class="card" aria-labelledby="h-dates">
+          <h2 id="h-dates">Dates &amp; deadlines</h2>
+          <div id="sec-dates"></div>
+        </section>
+
+        <section class="card" aria-labelledby="h-summary">
+          <h2 id="h-summary">Summary</h2>
+          <label class="label" for="sum-issue">Issue</label>
+          <textarea id="sum-issue" rows="3"></textarea>
+          <div id="sum-issue-prop"></div>
+          <label class="label" for="sum-outcome">Requested outcome</label>
+          <textarea id="sum-outcome" rows="2"></textarea>
+          <div id="sum-outcome-prop"></div>
+        </section>
+
+        <section class="card" aria-labelledby="h-actions">
+          <h2 id="h-actions">Follow-up actions</h2>
+          <div id="sec-actions"></div>
+          <form id="custom-action-form" class="row">
+            <label class="visually-hidden" for="custom-action">Add an action</label>
+            <input id="custom-action" placeholder="Add an action…">
+            <button class="btn btn-ghost" type="submit">Add</button>
+          </form>
+        </section>
+
+        <section class="card" aria-labelledby="h-guidance">
+          <h2 id="h-guidance">Guidance</h2>
+          <p class="muted small">Only office-approved library entries are shown. If none fit, ask an intake question or refer for team review rather than giving advice.</p>
+          <div id="sec-guidance"></div>
+          <details>
+            <summary>Search official government sites</summary>
+            <form id="search-form" class="row" autocomplete="off">
+              <label class="visually-hidden" for="search-q">Search query</label>
+              <input id="search-q" type="search" placeholder="e.g. carer payment eligibility">
+              <button class="btn btn-primary" type="submit">Search</button>
+            </form>
+            <div id="search-results" aria-live="polite"></div>
+          </details>
+        </section>
+      </section>
+
+      <!-- ----------------------------- Handoff ----------------------------- -->
+      <section id="panel-handoff" class="panel panel-handoff" role="tabpanel" aria-labelledby="tab-handoff" hidden>
+        <div class="card">
+          <h2>Review &amp; hand off</h2>
+          <p class="muted small">Nothing is submitted automatically. You review each handoff, then submit it yourself in the office Jotform so its existing email routing applies.</p>
+          <div id="handoff-list"></div>
+        </div>
+        <div class="card">
+          <h2>Acknowledgement draft (optional)</h2>
+          <button id="btn-ack" class="btn btn-ghost" type="button">Write acknowledgement</button>
+          <div id="ack-output"></div>
+        </div>
+        <div class="card">
+          <h2>Finish</h2>
+          <p class="muted small">Clears the notes and record for this interaction from this device and the server. The handoff log (no case content) is kept.</p>
+          <button id="btn-finish" class="btn btn-danger" type="button">Finish &amp; clear interaction</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Drafts -->
+  <dialog id="drafts-dialog" class="sheet" aria-labelledby="drafts-title">
+    <h2 id="drafts-title">Your open drafts</h2>
+    <p class="muted small">Drafts are deleted automatically after <span id="retention-hours">72</span> hours.</p>
+    <ul id="drafts-list" class="list"></ul>
+    <div class="row"><span class="spacer"></span><button class="btn btn-ghost" type="button" data-close>Close</button></div>
+  </dialog>
+
+  <!-- Library (admins) -->
+  <dialog id="library-dialog" class="sheet wide" aria-labelledby="library-title">
+    <h2 id="library-title">Guidance library</h2>
+    <p class="muted small">Entries are only offered to staff as guidance after an administrator approves them.</p>
+    <ul id="library-list" class="list"></ul>
+    <div class="row"><button id="btn-lib-new" class="btn btn-primary" type="button">New entry</button><span class="spacer"></span><button class="btn btn-ghost" type="button" data-close>Close</button></div>
+  </dialog>
+
+  <dialog id="tmpl-dialog" class="sheet" aria-labelledby="tmpl-dialog-title">
     <form id="tmpl-form" method="dialog">
-      <h2 id="tmpl-dialog-title">Edit response</h2>
+      <h2 id="tmpl-dialog-title">Edit entry</h2>
       <label class="label" for="t-title">Title</label>
-      <input id="t-title" name="title" required maxlength="200">
-      <label class="label" for="t-category">Category</label>
-      <select id="t-category" name="category"></select>
+      <input id="t-title" required maxlength="200">
+      <label class="label" for="t-category">Work type</label>
+      <select id="t-category"></select>
       <label class="label" for="t-tags">Keywords (comma separated)</label>
-      <input id="t-tags" name="tags">
+      <input id="t-tags">
       <label class="label" for="t-summary">One-line summary</label>
-      <input id="t-summary" name="summary" maxlength="1000">
+      <input id="t-summary" maxlength="1000">
       <label class="label" for="t-sms">SMS version</label>
-      <textarea id="t-sms" name="sms" rows="3" maxlength="1000"></textarea>
-      <span class="muted small" id="t-sms-count"></span>
-      <label class="label" for="t-body">Full response (email)</label>
-      <textarea id="t-body" name="body" rows="10"></textarea>
-      <label class="label" for="t-sources">Source links (one per line)</label>
-      <textarea id="t-sources" name="sources" rows="2"></textarea>
-      <p class="muted small">Saving marks this response as reviewed today.</p>
+      <textarea id="t-sms" rows="3" maxlength="1000"></textarea>
+      <label class="label" for="t-body">Full text</label>
+      <textarea id="t-body" rows="10"></textarea>
+      <label class="label" for="t-sources">Sources (one URL per line)</label>
+      <textarea id="t-sources" rows="2"></textarea>
+      <label class="check"><input type="checkbox" id="t-approve"> I've checked this against its sources. Approve as office guidance.</label>
       <div class="row">
         <button id="btn-tmpl-delete" class="btn btn-danger" type="button">Delete</button>
         <span class="spacer"></span>
         <button class="btn btn-ghost" value="cancel" formnovalidate type="submit">Cancel</button>
-        <button id="btn-tmpl-save" class="btn btn-primary" value="save" type="submit">Save</button>
+        <button class="btn btn-primary" value="save" type="submit">Save</button>
       </div>
-    </form>
-  </dialog>
-
-  <!-- Access code -->
-  <dialog id="token-dialog" class="sheet">
-    <form id="token-form" method="dialog">
-      <h2>Office access code</h2>
-      <p class="muted">Enter the access code from the office. It's stored on this device only.</p>
-      <input id="token-input" type="password" autocomplete="current-password" required>
-      <div class="row"><span class="spacer"></span><button class="btn btn-primary" type="submit" value="ok">Continue</button></div>
     </form>
   </dialog>
 

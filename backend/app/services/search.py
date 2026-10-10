@@ -23,9 +23,18 @@ import httpx
 
 from ..config import settings
 from ..db import get_conn, now_iso
-from . import rules
 
 log = logging.getLogger(__name__)
+
+# Key national contact numbers, shown alongside search results. Review periodically.
+TYPE_DOMAINS = {
+    "services_australia": ("servicesaustralia.gov.au", "my.gov.au"),
+    "immigration": ("homeaffairs.gov.au",),
+    "ndis": ("ndis.gov.au",),
+    "aged_care": ("myagedcare.gov.au",),
+    "ato": ("ato.gov.au",),
+    "dva": ("dva.gov.au",),
+}
 
 # Key national contact numbers, shown alongside search results. Review periodically.
 DIRECTORY: dict[str, list[dict[str, str]]] = {
@@ -36,32 +45,21 @@ DIRECTORY: dict[str, list[dict[str, str]]] = {
         {"name": "Centrelink - Disability, sickness & carers", "phone": "132 717"},
         {"name": "Medicare", "phone": "132 011"},
         {"name": "myGov help desk", "phone": "13 23 07"},
-        {"name": "Services Australia (web)", "url": "https://www.servicesaustralia.gov.au/contact-us"},
     ],
     "immigration": [
         {"name": "Home Affairs Global Service Centre", "phone": "131 881"},
         {"name": "Citizenship information line", "phone": "131 880"},
-        {"name": "Visa processing times", "url": "https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-processing-times/global-visa-processing-times"},
     ],
-    "ndis": [
-        {"name": "NDIS contact centre", "phone": "1800 800 110"},
-        {"name": "NDIS (web)", "url": "https://www.ndis.gov.au/contact"},
-    ],
-    "aged_care": [
-        {"name": "My Aged Care", "phone": "1800 200 422"},
-        {"name": "My Aged Care (web)", "url": "https://www.myagedcare.gov.au/contact-us"},
-    ],
-    "ato_nbn_dva": [
-        {"name": "ATO - individuals", "phone": "13 28 61"},
-        {"name": "Inspector-General of Taxation & Taxation Ombudsman", "phone": "1800 199 010"},
-        {"name": "DVA", "phone": "1800 838 372"},
-        {"name": "Open Arms - Veterans & Families Counselling", "phone": "1800 011 046"},
-        {"name": "Telecommunications Industry Ombudsman", "phone": "1800 062 058"},
-    ],
+    "ndis": [{"name": "NDIS contact centre", "phone": "1800 800 110"}],
+    "aged_care": [{"name": "My Aged Care", "phone": "1800 200 422"}],
+    "ato": [{"name": "ATO - individuals", "phone": "13 28 61"},
+            {"name": "Inspector-General of Taxation & Taxation Ombudsman", "phone": "1800 199 010"}],
+    "dva": [{"name": "DVA", "phone": "1800 838 372"},
+            {"name": "Open Arms - Veterans & Families Counselling", "phone": "1800 011 046"}],
+    "nbn": [{"name": "Telecommunications Industry Ombudsman", "phone": "1800 062 058"}],
     "general": [
         {"name": "Commonwealth Ombudsman", "phone": "1300 362 072"},
         {"name": "TIS National (interpreters)", "phone": "131 450"},
-        {"name": "Queensland Government", "phone": "13 74 68"},
     ],
 }
 
@@ -80,8 +78,8 @@ def scope_domains(category: str | None, requested: list[str] | None = None) -> l
         scoped = [d.lower() for d in requested if d.lower() in allow]
         if scoped:
             return scoped
-    if category and category in rules.CATEGORY_BY_ID:
-        scoped = [d for d in rules.CATEGORY_BY_ID[category].domains if d in allow]
+    if category and category in TYPE_DOMAINS:
+        scoped = [d for d in TYPE_DOMAINS[category] if d in allow]
         if scoped:
             return scoped
     return allow
@@ -102,13 +100,19 @@ def fallback_links(q: str, domains: list[str]) -> list[dict[str, str]]:
     ]
 
 
+GOV_PHONE = re.compile(
+    r"(?<![\d])(1[38]00[ ]?\d{3}[ ]?\d{3}|13\d[ ]?\d{3}|13[ ]?\d{2}[ ]?\d{2}|"
+    r"\(0[2378]\)[ ]?\d{4}[ ]?\d{4}|0[2378][ ]?\d{4}[ ]?\d{4})(?!\d)"
+)
+
+
 def _strip_html(text: str) -> str:
     return html.unescape(re.sub(r"<[^>]+>", "", text or ""))
 
 
 def _phones(text: str) -> list[str]:
     seen: list[str] = []
-    for m in rules.GOV_PHONE.finditer(text or ""):
+    for m in GOV_PHONE.finditer(text or ""):
         p = " ".join(m.group(0).split())
         if p not in seen:
             seen.append(p)

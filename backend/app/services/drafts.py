@@ -15,60 +15,48 @@ from typing import Any
 import httpx
 
 from ..config import settings
-from . import rules
+from . import extract
 
 log = logging.getLogger(__name__)
 
 NAME_TOKEN = "{FIRST_NAME}"
 
 AGENCY = {
-    "services_australia": "Services Australia",
-    "immigration": "the Department of Home Affairs",
-    "ndis": "the NDIA",
-    "aged_care": "My Aged Care",
-    "general": "the relevant agency",
+    "services_australia": "Services Australia", "immigration": "the Department of Home Affairs",
+    "ndis": "the NDIA", "aged_care": "My Aged Care", "ato": "the ATO",
+    "nbn": "your provider and NBN Co", "dva": "DVA",
 }
-SUB_AGENCY = {"ATO": "the ATO", "NBN / telco": "your provider and NBN Co", "DVA": "DVA"}
 
 TOPIC = {
-    "services_australia": "your Centrelink matter",
-    "immigration": "your visa application",
-    "ndis": "your NDIS matter",
-    "aged_care": "your aged care matter",
-    "ato_nbn_dva": "your enquiry",
-    "flags_messages": "your request",
-    "general": "your enquiry",
+    "services_australia": "your Centrelink matter", "immigration": "your visa matter",
+    "ndis": "your NDIS matter", "aged_care": "your aged care matter", "ato": "your tax matter",
+    "nbn": "your internet connection", "dva": "your DVA matter", "grant": "your funding enquiry",
+    "event_invitation": "your invitation", "donation_sponsorship": "your request",
+    "flag": "your flag request", "congratulations": "your request for a congratulatory message",
+    "media": "your media enquiry", "community_engagement": "your enquiry",
 }
 
-EMPATHY = {
-    "services_australia": "We know how much a payment problem can affect everything else, "
-                          "and we're here to help.",
-    "immigration": "We know how stressful waiting on a visa can be for you and your family.",
-    "ndis": "We know how important getting the right supports in place is.",
-    "aged_care": "We know how important it is to get the right care sorted, for you and "
-                 "your family.",
-    "ato_nbn_dva": "We know these things can be frustrating to chase up on your own.",
-    "general": "We're glad you reached out.",
+# Next-step wording per type. Never promises funding, agency outcomes or attendance.
+NEXT_STEP = {
+    "grant": "We'll look into what funding options may be available and come back to you. "
+             "We can't guarantee funding, but we're happy to help you find the right program.",
+    "event_invitation": "Thanks for thinking of Julie-Ann. We'll check her availability and "
+                        "come back to you. If you can, please send a formal invitation with the "
+                        "event details.",
+    "media": "We've passed your request to our communications team.",
+    "flag": "We've passed your request on and will be in touch.",
+    "congratulations": "We've passed your request on and will be in touch.",
+    "donation_sponsorship": "We've passed your request on and will be in touch.",
 }
 
-
-def agency_for(category: str, data: dict[str, Any]) -> str:
-    if category == "ato_nbn_dva":
-        return SUB_AGENCY.get(str(data.get("sub_type") or ""), "the relevant agency")
-    return AGENCY.get(category, "the relevant agency")
+CASEWORK = {"services_australia", "immigration", "ndis", "aged_care", "ato", "nbn", "dva",
+            "other_casework", "ministerial"}
 
 
-def topic_for(category: str, data: dict[str, Any]) -> str:
-    if category == "services_australia" and data.get("payment_type"):
+def topic_for(type_id: str, data: dict[str, Any]) -> str:
+    if type_id == "services_australia" and data.get("payment_type"):
         return f"your {str(data['payment_type']).strip()} matter"
-    if category == "immigration" and data.get("visa_subclass"):
-        return f"your subclass {str(data['visa_subclass']).strip()} visa application"
-    if category == "ato_nbn_dva":
-        return {"ATO": "your tax matter", "NBN / telco": "your internet connection",
-                "DVA": "your DVA matter"}.get(str(data.get("sub_type") or ""), "your enquiry")
-    if category == "flags_messages" and data.get("request_type"):
-        return f"your {str(data['request_type']).strip().lower()} request"
-    return TOPIC.get(category, "your enquiry")
+    return TOPIC.get(type_id, "your enquiry")
 
 
 def _signature() -> str:
@@ -79,79 +67,50 @@ def _signature() -> str:
     return "\n".join(lines)
 
 
-def _greeting(first: str) -> str:
-    return f"Hi {first},"
+def _referrals(flags: list[dict[str, Any]]) -> list[str]:
+    refs: list[str] = []
+    for f in flags:
+        refs += [f"{r['name']}: {r['contact']}" for r in f["referrals"]]
+    return list(dict.fromkeys(refs))
 
 
-def acknowledgement(category: str, data: dict[str, Any], flags: list[dict[str, Any]]) -> dict[str, str]:
-    agency = agency_for(category, data)
-    topic = topic_for(category, data)
-    consent = bool(data.get("consent_signed")) and data.get("consent_signed") not in ("false", "0")
-    paras = [
-        f"Thanks so much for getting in touch with our office about {topic}. "
-        + EMPATHY.get(category, EMPATHY["general"]),
-    ]
-    if category == "flags_messages":
-        paras.append(
-            "We've passed your request on to the team and we'll be in touch once it's ready. "
-            "If there's a date you need it by, just let us know so we can do our best to "
-            "make it happen."
-        )
+def acknowledgement(type_id: str, data: dict[str, Any], flags: list[dict[str, Any]]) -> dict[str, str]:
+    topic = topic_for(type_id, data)
+    consent_ok = data.get("consent_status") in ("Signed consent received", "Not required")
+    paras = [f"Thanks so much for getting in touch with our office about {topic}."]
+    if type_id in CASEWORK:
+        agency = AGENCY.get(type_id, "the relevant agency")
+        paras.append("Our team will look at how we can help.")
+        if not consent_ok:
+            paras.append(f"Before we can raise this with {agency}, we may need your written "
+                         "consent, as agencies generally can't discuss your details with us "
+                         "without it. We'll let you know if that's needed.")
+        paras.append("Our office can't make decisions on behalf of an agency, but we'll keep "
+                     "you updated.")
     else:
-        if consent:
-            paras.append(
-                f"We've opened a case for you and will raise this directly with {agency} "
-                "on your behalf."
-            )
-        else:
-            paras.append(
-                f"We've opened a case for you. Before we can raise this with {agency}, we'll "
-                "need your signed privacy consent form — agencies can't discuss your details "
-                "with us without it. As soon as it's back with us, we'll get things moving."
-            )
-        paras.append(
-            "While our office can't make decisions on behalf of an agency, we'll make sure "
-            "your matter gets looked at and we'll keep you updated every step of the way."
-        )
+        paras.append(NEXT_STEP.get(type_id, "We've passed this on to the right person in our "
+                                            "team and will be in touch."))
     if flags:
-        refs = []
-        for f in flags:
-            refs += [f"{r['name']}: {r['contact']}" for r in f["referrals"]]
-        paras.append(
-            "In the meantime, please don't hesitate to reach out for support:\n"
-            + "\n".join(f"• {r}" for r in dict.fromkeys(refs))
-        )
+        paras.append("If you need support in the meantime:\n"
+                     + "\n".join(f"• {r}" for r in _referrals(flags)))
     paras.append("If anything changes, just reply to this email or give us a call.")
-    email = "\n\n".join([_greeting(NAME_TOKEN)] + paras + [_signature()])
-
-    if category == "flags_messages":
-        sms_core = "thanks for your request - we've got it and will be in touch soon."
-    elif consent:
-        sms_core = f"thanks for calling about {topic}. We've opened a case and will raise it with {agency}."
-    else:
-        sms_core = (f"thanks for calling about {topic}. We've opened a case - please sign & return "
-                    "the consent form so we can contact the agency for you.")
-    sms = f"Hi {NAME_TOKEN}, {sms_core} - {settings.office_signoff}"
-    subject = f"We've received {topic}" if category != "flags_messages" else "Thanks for your request"
+    email = "\n\n".join([f"Hi {NAME_TOKEN},"] + paras + [_signature()])
+    sms = f"Hi {NAME_TOKEN}, thanks for contacting our office about {topic}. We'll be in touch. - {settings.office_signoff}"
+    subject = f"We've received {topic}"
     return {"subject": subject[0].upper() + subject[1:], "email": email, "sms": sms}
 
 
-def resolution(category: str, data: dict[str, Any], tmpl: list[dict[str, Any]],
+def resolution(type_id: str, data: dict[str, Any], tmpl: list[dict[str, Any]],
                flags: list[dict[str, Any]]) -> dict[str, str]:
-    topic = topic_for(category, data)
-    paras = [f"Thanks so much for chatting with our office today about {topic}. "
-             "As promised, here's the information we went through:"]
+    topic = topic_for(type_id, data)
+    paras = [f"Thanks for chatting with our office today about {topic}. "
+             "Here's the information we went through:"]
     for t in tmpl:
         paras.append(f"{t['title']}\n{t['body'].strip()}")
     if flags:
-        refs = []
-        for f in flags:
-            refs += [f"{r['name']}: {r['contact']}" for r in f["referrals"]]
-        paras.append("Support is also available any time:\n"
-                     + "\n".join(f"• {r}" for r in dict.fromkeys(refs)))
-    paras.append("If you get stuck or it doesn't sort things out, just reply to this email or "
-                 "give us a call — we're always happy to help.")
-    email = "\n\n".join([_greeting(NAME_TOKEN)] + paras + [_signature()])
+        paras.append("Support is also available:\n" + "\n".join(f"• {r}" for r in _referrals(flags)))
+    paras.append("If you get stuck, just reply to this email or give us a call.")
+    email = "\n\n".join([f"Hi {NAME_TOKEN},"] + paras + [_signature()])
     sms_bits = " ".join(t["sms"].strip() for t in tmpl if t.get("sms"))
     sms = f"Hi {NAME_TOKEN}, thanks for calling. {sms_bits} - {settings.office_signoff}".strip()
     return {"subject": f"Information about {topic}", "email": email, "sms": sms}
@@ -177,7 +136,7 @@ async def polish(draft: dict[str, str], notes: str, data: dict[str, Any] | None 
     if not (settings.openrouter_api_key and settings.generate_model):
         return None
     user = (
-        "Context (identifiers removed):\n" + rules.redact_pii(notes, data)[:3000]
+        "Context (identifiers removed):\n" + extract.redact(notes, data)[:3000]
         + "\n\nDraft to polish:\n" + json.dumps(draft)
     )
     own = client is None
@@ -212,13 +171,11 @@ async def polish(draft: dict[str, str], notes: str, data: dict[str, Any] | None 
             await client.aclose()
 
 
-async def generate(kind: str, category: str, data: dict[str, Any], notes: str,
+async def generate(type_id: str, data: dict[str, Any], notes: str,
                    tmpl: list[dict[str, Any]], polish_with_model: bool = True) -> dict[str, Any]:
-    flags = rules.safety_flags(notes)
-    if kind == "resolution" and tmpl:
-        draft = resolution(category, data, tmpl, flags)
-    else:
-        draft = acknowledgement(category, data, flags)
+    """Resolution email when approved guidance is selected, otherwise an acknowledgement."""
+    flags = extract.safety_flags(notes)
+    draft = resolution(type_id, data, tmpl, flags) if tmpl else acknowledgement(type_id, data, flags)
     engine = "template"
     if polish_with_model:
         polished = await polish(draft, notes, data)

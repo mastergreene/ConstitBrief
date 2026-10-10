@@ -1,0 +1,1166 @@
+{
+  "form_id": "252413844700855",
+  "form_title": "Web OfficeOne",
+  "source": "https://form.jotform.com/252413844700855 (public form HTML)",
+  "captured_at": "2026-10-10T19:22:08+00:00",
+  "structure_sha256": "fdbdf8975e645547c87b541a3b70196978caa8a2ea959ce617b0a97a103eaa41",
+  "notification_routing": "NOT VISIBLE in public form - requires authorised Jotform access",
+  "fields": [
+    {
+      "qid": "4",
+      "type": "control_fullname",
+      "label": "Name",
+      "required": true,
+      "section": null,
+      "inputs": [
+        {
+          "name": "q4_name[first]",
+          "sub": "first",
+          "required": true
+        },
+        {
+          "name": "q4_name[last]",
+          "sub": "last",
+          "required": true
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "9",
+      "type": "control_dropdown",
+      "label": "How can we help you?",
+      "required": false,
+      "section": null,
+      "inputs": [
+        {
+          "name": "q9_typeA",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": [
+        "Request a Congratulations Message",
+        "Request a Flag",
+        "Request a Donation/Sponsorship",
+        "Invitation to an event",
+        "Help with a Services Australia issue",
+        "Help with an Immigration issue",
+        "Help with an NDIS issue",
+        "Help with a MyAgedCare issue",
+        "Help with an ATO issue",
+        "Help with an NBN issue",
+        "Help with a Veterans Affairs issue",
+        "Volunteer Inquiries",
+        "Grant Inquiries",
+        "Media Inquiries",
+        "Help with another Issue"
+      ]
+    },
+    {
+      "qid": "120",
+      "type": "control_textbox",
+      "label": "Phone Number",
+      "required": false,
+      "section": null,
+      "inputs": [
+        {
+          "name": "q120_phoneNumber120",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "5",
+      "type": "control_email",
+      "label": "Email",
+      "required": false,
+      "section": null,
+      "inputs": [
+        {
+          "name": "q5_email",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "132",
+      "type": "control_address",
+      "label": "Address",
+      "required": true,
+      "section": null,
+      "inputs": [
+        {
+          "name": "q132_address132[addr_line1]",
+          "sub": "addr_line1",
+          "required": true
+        },
+        {
+          "name": "q132_address132[addr_line2]",
+          "sub": "addr_line2",
+          "required": false
+        },
+        {
+          "name": "q132_address132[city]",
+          "sub": "city",
+          "required": true
+        },
+        {
+          "name": "q132_address132[state]",
+          "sub": "state",
+          "required": true
+        },
+        {
+          "name": "q132_address132[postal]",
+          "sub": "postal",
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "135",
+      "type": "control_text",
+      "label": "",
+      "required": false,
+      "section": null,
+      "inputs": [],
+      "options": [],
+      "text": "We ask for your address to ensure you are a resident of Moreton as this office is only able to respond to inquiries from within the electorate."
+    },
+    {
+      "qid": "11",
+      "type": "control_textbox",
+      "label": "CRN",
+      "required": false,
+      "section": "20",
+      "inputs": [
+        {
+          "name": "q11_crn",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "18",
+      "type": "control_textbox",
+      "label": "Payment Type",
+      "required": false,
+      "section": "20",
+      "inputs": [
+        {
+          "name": "q18_paymentType",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "22",
+      "type": "control_textarea",
+      "label": "More information",
+      "required": false,
+      "section": "20",
+      "inputs": [
+        {
+          "name": "q22_moreInformation",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "27",
+      "type": "control_dropdown",
+      "label": "Have you received an acknowledgement of your submission(s) from Department of Home Affairs (DHA)?",
+      "required": false,
+      "section": "23",
+      "inputs": [
+        {
+          "name": "q27_haveYou",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": [
+        "Yes",
+        "No"
+      ]
+    },
+    {
+      "qid": "25",
+      "type": "control_textbox",
+      "label": "Are you using a migration agent?",
+      "required": false,
+      "section": "23",
+      "inputs": [
+        {
+          "name": "q25_areYou",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "24",
+      "type": "control_textbox",
+      "label": "Type of Visa/Subclass",
+      "required": false,
+      "section": "23",
+      "inputs": [
+        {
+          "name": "q24_typeOf",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "26",
+      "type": "control_textarea",
+      "label": "More information",
+      "required": false,
+      "section": "23",
+      "inputs": [
+        {
+          "name": "q26_moreInformation26",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "30",
+      "type": "control_fileupload",
+      "label": "If you have had a visa refusal, please supply all DHA documentation.",
+      "required": false,
+      "section": "23",
+      "inputs": [
+        {
+          "name": "q30_ifYou[]",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "35",
+      "type": "control_textbox",
+      "label": "NDIS Participant Number",
+      "required": false,
+      "section": "34",
+      "inputs": [
+        {
+          "name": "q35_ndisParticipant",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "37",
+      "type": "control_textarea",
+      "label": "Brief description of the issue",
+      "required": false,
+      "section": "34",
+      "inputs": [
+        {
+          "name": "q37_briefDescription",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "42",
+      "type": "control_textbox",
+      "label": "MyAgedCare Number",
+      "required": false,
+      "section": "41",
+      "inputs": [
+        {
+          "name": "q42_ndisParticipant42",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "43",
+      "type": "control_textarea",
+      "label": "Brief description of the issue",
+      "required": false,
+      "section": "41",
+      "inputs": [
+        {
+          "name": "q43_briefDescription43",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "47",
+      "type": "control_textbox",
+      "label": "Date of birth",
+      "required": false,
+      "section": "46",
+      "inputs": [
+        {
+          "name": "q47_dateOf",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "48",
+      "type": "control_textarea",
+      "label": "Brief description of the issue",
+      "required": false,
+      "section": "46",
+      "inputs": [
+        {
+          "name": "q48_briefDescription48",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "55",
+      "type": "control_address",
+      "label": "NBN address",
+      "required": false,
+      "section": "51",
+      "inputs": [
+        {
+          "name": "q55_nbnAddress[addr_line1]",
+          "sub": "addr_line1",
+          "required": false
+        },
+        {
+          "name": "q55_nbnAddress[addr_line2]",
+          "sub": "addr_line2",
+          "required": false
+        },
+        {
+          "name": "q55_nbnAddress[city]",
+          "sub": "city",
+          "required": false
+        },
+        {
+          "name": "q55_nbnAddress[state]",
+          "sub": "state",
+          "required": false
+        },
+        {
+          "name": "q55_nbnAddress[postal]",
+          "sub": "postal",
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "53",
+      "type": "control_textarea",
+      "label": "Brief description of the issue",
+      "required": false,
+      "section": "51",
+      "inputs": [
+        {
+          "name": "q53_briefDescription53",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "57",
+      "type": "control_textbox",
+      "label": "DVA Number",
+      "required": false,
+      "section": "56",
+      "inputs": [
+        {
+          "name": "q57_dvaNumber",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "58",
+      "type": "control_textarea",
+      "label": "Brief description of the issue",
+      "required": false,
+      "section": "56",
+      "inputs": [
+        {
+          "name": "q58_briefDescription58",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "64",
+      "type": "control_textarea",
+      "label": "Brief description of the issue",
+      "required": false,
+      "section": "62",
+      "inputs": [
+        {
+          "name": "q64_briefDescription64",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "68",
+      "type": "control_textbox",
+      "label": "Title of Recipient",
+      "required": false,
+      "section": "67",
+      "inputs": [
+        {
+          "name": "q68_titleOf",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "72",
+      "type": "control_fullname",
+      "label": "Name of Recipient",
+      "required": false,
+      "section": "67",
+      "inputs": [
+        {
+          "name": "q72_nameOf[first]",
+          "sub": "first",
+          "required": false
+        },
+        {
+          "name": "q72_nameOf[last]",
+          "sub": "last",
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "73",
+      "type": "control_address",
+      "label": "Address of Recipient",
+      "required": true,
+      "section": "67",
+      "inputs": [
+        {
+          "name": "q73_addressOf[addr_line1]",
+          "sub": "addr_line1",
+          "required": true
+        },
+        {
+          "name": "q73_addressOf[addr_line2]",
+          "sub": "addr_line2",
+          "required": false
+        },
+        {
+          "name": "q73_addressOf[city]",
+          "sub": "city",
+          "required": true
+        },
+        {
+          "name": "q73_addressOf[state]",
+          "sub": "state",
+          "required": true
+        },
+        {
+          "name": "q73_addressOf[postal]",
+          "sub": "postal",
+          "required": true
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "74",
+      "type": "control_address",
+      "label": "Postal Address",
+      "required": false,
+      "section": "67",
+      "inputs": [
+        {
+          "name": "q74_postalAddress[addr_line1]",
+          "sub": "addr_line1",
+          "required": false
+        },
+        {
+          "name": "q74_postalAddress[addr_line2]",
+          "sub": "addr_line2",
+          "required": false
+        },
+        {
+          "name": "q74_postalAddress[city]",
+          "sub": "city",
+          "required": false
+        },
+        {
+          "name": "q74_postalAddress[state]",
+          "sub": "state",
+          "required": false
+        },
+        {
+          "name": "q74_postalAddress[postal]",
+          "sub": "postal",
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "78",
+      "type": "control_textbox",
+      "label": "Anniversary Number(ie. 60th wedding/100th birthday etc)",
+      "required": false,
+      "section": "67",
+      "inputs": [
+        {
+          "name": "q78_anniversaryNumberie78",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "76",
+      "type": "control_datetime",
+      "label": "Anniversary Date - Month",
+      "required": false,
+      "section": "67",
+      "inputs": [
+        {
+          "name": "q76_anniversaryDate[month]",
+          "sub": "month",
+          "required": false
+        },
+        {
+          "name": "q76_anniversaryDate[day]",
+          "sub": "day",
+          "required": false
+        },
+        {
+          "name": "q76_anniversaryDate[year]",
+          "sub": "year",
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "77",
+      "type": "control_datetime",
+      "label": "Date the message should arrive(can be up to a month ahead of the anniversary) - Month",
+      "required": false,
+      "section": "67",
+      "inputs": [
+        {
+          "name": "q77_date[month]",
+          "sub": "month",
+          "required": false
+        },
+        {
+          "name": "q77_date[day]",
+          "sub": "day",
+          "required": false
+        },
+        {
+          "name": "q77_date[year]",
+          "sub": "year",
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "79",
+      "type": "control_fileupload",
+      "label": "Proof of anniversary – birth certificate, passport, ID or citizenship docs etc for birthdays; marriage certificate for anniversaries; if these aren’t available statutory declarations are acceptable – available from the Attorney-General’s website (Federal and state)",
+      "required": false,
+      "section": "67",
+      "inputs": [
+        {
+          "name": "q79_proofOf[]",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "81",
+      "type": "control_textbox",
+      "label": "Reason for request?",
+      "required": false,
+      "section": "80",
+      "inputs": [
+        {
+          "name": "q81_reasonFor",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "82",
+      "type": "control_textarea",
+      "label": "What size they require (larger flags for flag poles – 1800x900mm; small flags for indoor display – 1370x685mm)",
+      "required": false,
+      "section": "80",
+      "inputs": [
+        {
+          "name": "q82_whatSize",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "89",
+      "type": "control_datetime",
+      "label": "When is the donation required by? - Month",
+      "required": false,
+      "section": "85",
+      "inputs": [
+        {
+          "name": "q89_whenIs[month]",
+          "sub": "month",
+          "required": false
+        },
+        {
+          "name": "q89_whenIs[day]",
+          "sub": "day",
+          "required": false
+        },
+        {
+          "name": "q89_whenIs[year]",
+          "sub": "year",
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "87",
+      "type": "control_textarea",
+      "label": "What sort of event (trivia night, fete, community event etc)",
+      "required": false,
+      "section": "85",
+      "inputs": [
+        {
+          "name": "q87_whatSort",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "92",
+      "type": "control_textarea",
+      "label": "Details",
+      "required": false,
+      "section": "90",
+      "inputs": [
+        {
+          "name": "q92_details",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "97",
+      "type": "control_textbox",
+      "label": "Event location",
+      "required": false,
+      "section": "94",
+      "inputs": [
+        {
+          "name": "q97_eventLocation",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "98",
+      "type": "control_datetime",
+      "label": "Event date - Month",
+      "required": false,
+      "section": "94",
+      "inputs": [
+        {
+          "name": "q98_eventDate[month]",
+          "sub": "month",
+          "required": false
+        },
+        {
+          "name": "q98_eventDate[day]",
+          "sub": "day",
+          "required": false
+        },
+        {
+          "name": "q98_eventDate[year]",
+          "sub": "year",
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "99",
+      "type": "control_radio",
+      "label": "Would you like Julie-Ann to speak? Yes",
+      "required": false,
+      "section": "94",
+      "inputs": [
+        {
+          "name": "q99_wouldYou",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": [
+        "Yes",
+        "No"
+      ]
+    },
+    {
+      "qid": "102",
+      "type": "control_textarea",
+      "label": "Details",
+      "required": false,
+      "section": "101",
+      "inputs": [
+        {
+          "name": "q102_details102",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "111",
+      "type": "control_dropdown",
+      "label": "How would you like to get involved?",
+      "required": false,
+      "section": "104",
+      "inputs": [
+        {
+          "name": "q111_typeA111",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": [
+        "I'm keen to help at a local event.",
+        "I'm keen to host a yard sign.",
+        "I'm keen to get involved."
+      ]
+    },
+    {
+      "qid": "136",
+      "type": "control_textarea",
+      "label": "More information (optional)",
+      "required": false,
+      "section": "104",
+      "inputs": [
+        {
+          "name": "q136_moreInformation136",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    },
+    {
+      "qid": "117",
+      "type": "control_textarea",
+      "label": "Details",
+      "required": false,
+      "section": "116",
+      "inputs": [
+        {
+          "name": "q117_details117",
+          "sub": null,
+          "required": false
+        }
+      ],
+      "options": []
+    }
+  ],
+  "sections": {
+    "20": [
+      "11",
+      "18",
+      "22"
+    ],
+    "23": [
+      "27",
+      "25",
+      "24",
+      "26",
+      "30"
+    ],
+    "34": [
+      "35",
+      "37"
+    ],
+    "41": [
+      "42",
+      "43"
+    ],
+    "46": [
+      "47",
+      "48"
+    ],
+    "51": [
+      "55",
+      "53"
+    ],
+    "56": [
+      "57",
+      "58"
+    ],
+    "62": [
+      "64"
+    ],
+    "67": [
+      "68",
+      "72",
+      "73",
+      "74",
+      "78",
+      "76",
+      "77",
+      "79"
+    ],
+    "80": [
+      "81",
+      "82"
+    ],
+    "85": [
+      "89",
+      "87"
+    ],
+    "90": [
+      "92"
+    ],
+    "94": [
+      "97",
+      "98",
+      "99"
+    ],
+    "101": [
+      "102"
+    ],
+    "104": [
+      "111",
+      "136"
+    ],
+    "116": [
+      "117"
+    ]
+  },
+  "conditions": [
+    {
+      "terms": [
+        {
+          "field": "9",
+          "operator": "equals",
+          "value": "Volunteer Inquiries"
+        }
+      ],
+      "actions": [
+        {
+          "visibility": "Show",
+          "field": "104"
+        }
+      ]
+    },
+    {
+      "terms": [
+        {
+          "field": "9",
+          "operator": "equals",
+          "value": "Party Member Inquiry"
+        }
+      ],
+      "actions": [
+        {
+          "visibility": "Show",
+          "field": "116"
+        }
+      ]
+    },
+    {
+      "terms": [
+        {
+          "field": "9",
+          "operator": "equals",
+          "value": "Volunteer Inquiries"
+        }
+      ],
+      "actions": [
+        {
+          "visibility": "Show",
+          "field": "104"
+        }
+      ]
+    },
+    {
+      "terms": [
+        {
+          "field": "9",
+          "operator": "equals",
+          "value": "Media Inquiries"
+        }
+      ],
+      "actions": [
+        {
+          "visibility": "Show",
+          "field": "101"
+        }
+      ]
+    },
+    {
+      "terms": [
+        {
+          "field": "9",
+          "operator": "equals",
+          "value": "Grant Inquiries"
+        }
+      ],
+      "actions": [
+        {
+          "visibility": "Show",
+          "field": "90"
+        }
+      ]
+    },
+    {
+      "terms": [
+        {
+          "field": "9",
+          "operator": "equals",
+          "value": "Help with another Issue"
+        }
+      ],
+      "actions": [
+        {
+          "visibility": "Show",
+          "field": "62"
+        }
+      ]
+    },
+    {
+      "terms": [
+        {
+          "field": "9",
+          "operator": "equals",
+          "value": "Help with a Veterans Affairs issue"
+        }
+      ],
+      "actions": [
+        {
+          "visibility": "Show",
+          "field": "56"
+        }
+      ]
+    },
+    {
+      "terms": [
+        {
+          "field": "9",
+          "operator": "equals",
+          "value": "Help with an NBN issue"
+        }
+      ],
+      "actions": [
+        {
+          "visibility": "Show",
+          "field": "51"
+        }
+      ]
+    },
+    {
+      "terms": [
+        {
+          "field": "9",
+          "operator": "equals",
+          "value": "Help with an ATO issue"
+        }
+      ],
+      "actions": [
+        {
+          "visibility": "Show",
+          "field": "46"
+        }
+      ]
+    },
+    {
+      "terms": [
+        {
+          "field": "9",
+          "operator": "equals",
+          "value": "Help with a MyAgedCare issue"
+        }
+      ],
+      "actions": [
+        {
+          "visibility": "Show",
+          "field": "41"
+        }
+      ]
+    },
+    {
+      "terms": [
+        {
+          "field": "9",
+          "operator": "equals",
+          "value": "Help with an NDIS issue"
+        }
+      ],
+      "actions": [
+        {
+          "visibility": "Show",
+          "field": "34"
+        }
+      ]
+    },
+    {
+      "terms": [
+        {
+          "field": "9",
+          "operator": "equals",
+          "value": "Invitation to an event"
+        }
+      ],
+      "actions": [
+        {
+          "visibility": "Show",
+          "field": "94"
+        }
+      ]
+    },
+    {
+      "terms": [
+        {
+          "field": "9",
+          "operator": "equals",
+          "value": "Request a Donation/Sponsorship"
+        }
+      ],
+      "actions": [
+        {
+          "visibility": "Show",
+          "field": "85"
+        }
+      ]
+    },
+    {
+      "terms": [
+        {
+          "field": "9",
+          "operator": "equals",
+          "value": "Request a Flag"
+        }
+      ],
+      "actions": [
+        {
+          "visibility": "Show",
+          "field": "80"
+        }
+      ]
+    },
+    {
+      "terms": [
+        {
+          "field": "9",
+          "operator": "equals",
+          "value": "Request a Congratulations Message"
+        }
+      ],
+      "actions": [
+        {
+          "visibility": "Show",
+          "field": "67"
+        }
+      ]
+    },
+    {
+      "terms": [
+        {
+          "field": "9",
+          "operator": "equals",
+          "value": "Help with an Immigration issue"
+        }
+      ],
+      "actions": [
+        {
+          "visibility": "Show",
+          "field": "23"
+        }
+      ]
+    },
+    {
+      "terms": [
+        {
+          "field": "9",
+          "operator": "equals",
+          "value": "Help with a Services Australia issue"
+        }
+      ],
+      "actions": [
+        {
+          "visibility": "Show",
+          "field": "20"
+        }
+      ]
+    }
+  ]
+}

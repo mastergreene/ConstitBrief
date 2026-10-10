@@ -1,29 +1,24 @@
-"""Optional shared access token for the API.
-
-Static PWA assets stay public (they contain no data); every /api/* route except
-/api/health requires the token when APP_ACCESS_TOKEN is set.
-"""
+"""CSRF guard and security headers."""
 from __future__ import annotations
-
-import hmac
 
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from .config import settings
-
-OPEN_PATHS = {"/api/health"}
+CSRF_HEADER = "x-constitbrief"
 
 
-class AccessTokenMiddleware(BaseHTTPMiddleware):
+class CsrfMiddleware(BaseHTTPMiddleware):
+    """State-changing API calls must carry a custom header.
+
+    Browsers won't send a custom header cross-site without a CORS preflight (which this app
+    never grants), so this, plus SameSite=Strict cookies, blocks cross-site request forgery.
+    """
+
     async def dispatch(self, request: Request, call_next):
-        token = settings.access_token
-        path = request.url.path
-        if token and path.startswith("/api/") and path not in OPEN_PATHS:
-            supplied = request.headers.get("x-access-token", "")
-            if not hmac.compare_digest(supplied.encode(), token.encode()):
-                return JSONResponse({"detail": "Access code required"}, status_code=401)
+        if (request.url.path.startswith("/api/") and request.method not in ("GET", "HEAD", "OPTIONS")
+                and request.headers.get(CSRF_HEADER) != "1"):
+            return JSONResponse({"detail": "Missing request header"}, status_code=403)
         return await call_next(request)
 
 
@@ -36,7 +31,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         resp.headers.setdefault(
             "Content-Security-Policy",
             "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; "
-            "connect-src 'self'; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'",
+            "connect-src 'self'; manifest-src 'self'; worker-src 'self'; frame-ancestors 'none'; "
+            "form-action 'self'",
         )
         if request.url.path.startswith("/api/"):
             resp.headers.setdefault("Cache-Control", "no-store")
