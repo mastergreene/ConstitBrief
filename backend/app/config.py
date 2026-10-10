@@ -46,6 +46,10 @@ def _env_float(name: str, default: float) -> float:
         return default
 
 
+def _default_db() -> str:
+    return "/tmp/constitbrief.sqlite3" if os.environ.get("VERCEL") else "data/constitbrief.sqlite3"
+
+
 DEFAULT_SEARCH_DOMAINS = (
     "servicesaustralia.gov.au,homeaffairs.gov.au,myagedcare.gov.au,"
     "ndis.gov.au,ato.gov.au,dva.gov.au,my.gov.au"
@@ -57,8 +61,13 @@ class Settings:
     host: str = field(default_factory=lambda: _env("HOST", "127.0.0.1"))
     port: int = field(default_factory=lambda: _env_int("PORT", 8787))
     db_path: Path = field(
-        default_factory=lambda: (ROOT_DIR / _env("DB_PATH", "data/constitbrief.sqlite3")).resolve()
+        default_factory=lambda: (ROOT_DIR / _env("DB_PATH", _default_db())).resolve()
     )
+    # On serverless hosts (Vercel) only /tmp is writable and it is per-instance and temporary.
+    on_vercel: bool = field(default_factory=lambda: bool(os.environ.get("VERCEL")))
+    # Creates this admin account if the database has no users (needed where the CLI can't run).
+    bootstrap_admin_username: str = field(default_factory=lambda: _env("BOOTSTRAP_ADMIN_USERNAME"))
+    bootstrap_admin_password: str = field(default_factory=lambda: _env("BOOTSTRAP_ADMIN_PASSWORD"))
     # Server-side interaction drafts (notes + record) are deleted after this many hours.
     draft_retention_hours: int = field(default_factory=lambda: _env_int("DRAFT_RETENTION_HOURS", 72))
     session_hours: int = field(default_factory=lambda: _env_int("SESSION_HOURS", 10))
@@ -112,3 +121,7 @@ class Settings:
 
 
 settings = Settings()
+
+
+def storage_is_ephemeral() -> bool:
+    return settings.on_vercel and str(settings.db_path).startswith("/tmp")

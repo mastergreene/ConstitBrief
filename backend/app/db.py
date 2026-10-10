@@ -141,10 +141,23 @@ def init_db(path: Path | None = None) -> None:
             count = conn.execute("SELECT COUNT(*) FROM templates").fetchone()[0]
             if count == 0:
                 _seed_templates(conn)
+            _bootstrap_admin(conn)
             conn.commit()
         finally:
             conn.close()
         _initialised.add(path)
+
+
+def _bootstrap_admin(conn: sqlite3.Connection) -> None:
+    """Create the BOOTSTRAP_ADMIN_* account when no users exist (hosts without a shell)."""
+    user, pw = settings.bootstrap_admin_username, settings.bootstrap_admin_password
+    if not (user and pw) or conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]:
+        return
+    if len(pw) < 10:
+        raise RuntimeError("BOOTSTRAP_ADMIN_PASSWORD must be at least 10 characters")
+    from .auth import hash_password  # local import: auth depends on this module
+    conn.execute("INSERT INTO users (username, display_name, role, password_hash, created_at) "
+                 "VALUES (?,?,?,?,?)", (user, user, "admin", hash_password(pw), now_iso()))
 
 
 def _seed_templates(conn: sqlite3.Connection, seed_file: Path = SEED_FILE) -> int:

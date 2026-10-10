@@ -149,6 +149,7 @@ async function startApp() {
   $('#app-view').hidden = false;
   $('#user-name').textContent = S.user.display_name;
   $('#btn-library').hidden = S.user.role !== 'admin';
+  $('#ephemeral-banner').hidden = !S.meta.features.ephemeral_storage;
   $('#retention-hours').textContent = S.meta.draft_retention_hours;
   if (!wired) { wire(); wired = true; }
   await restoreOrCreate();

@@ -150,3 +150,4 @@ dialog.sheet { width: min(640px, calc(100% - 24px)); max-height: 90vh; border: 0
 dialog.sheet.wide { width: min(900px, calc(100% - 24px)); }
 dialog::backdrop { background: rgba(4, 10, 18, .55); }
 .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 50; background: var(--text); color: var(--surface); padding: .6rem 1rem; border-radius: 999px; font-weight: 700; max-width: calc(100% - 32px); }
+.banner { margin: 0; border-radius: 0; text-align: center; }

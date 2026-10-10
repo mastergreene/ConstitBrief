@@ -236,3 +236,19 @@ def test_generate_ack_makes_no_promises(client):
     assert "check her availability" in d["email"] and "will attend" not in d["email"]
     g = client.post("/api/generate", json={"type_id": "grant", "values": {}}).json()
     assert "can't guarantee funding" in g["email"]
+
+
+def test_bootstrap_admin_only_when_no_users(set_setting, tmp_path):
+    import sqlite3
+
+    from backend.app import db
+    set_setting("bootstrap_admin_username", "boot")
+    set_setting("bootstrap_admin_password", "bootstrap-pass-1")
+    fresh = tmp_path / "fresh.sqlite3"
+    db.init_db(fresh)
+    rows = sqlite3.connect(fresh).execute("SELECT username, role FROM users").fetchall()
+    assert rows == [("boot", "admin")]
+    db._initialised.discard(fresh)
+    set_setting("bootstrap_admin_username", "second")
+    db.init_db(fresh)  # users exist: nothing added
+    assert sqlite3.connect(fresh).execute("SELECT COUNT(*) FROM users").fetchone()[0] == 1

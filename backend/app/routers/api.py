@@ -8,7 +8,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 
 from .. import auth, db
-from ..config import settings
+from ..config import settings, storage_is_ephemeral
 from ..schemas import (AnalyseIn, GenerateIn, GuidanceIn, InteractionSave, LoginIn, OpenIn, PrepareIn,
                        ReportIn, SearchIn, TemplateIn, TemplatePatch)
 from ..services import analysis, drafts, formmap, handoff, jev, search, taxonomy, templates
@@ -56,6 +56,7 @@ def meta(user: dict = Authed) -> dict[str, Any]:
             "draft_model": bool(settings.openrouter_api_key and settings.generate_model),
             "jotform_verification": handoff.verification_available(),
             "prefill_contact": settings.jotform_prefill_contact,
+            "ephemeral_storage": storage_is_ephemeral(),
         },
         "draft_retention_hours": settings.draft_retention_hours,
         "office": {"signoff": settings.office_signoff, "name": settings.office_name},

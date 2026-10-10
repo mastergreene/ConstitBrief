@@ -100,6 +100,14 @@ tailscale serve --bg 8787        # https://<machine>.<tailnet>.ts.net (tailnet d
 
 Don't use `tailscale funnel`, because that makes the app public. Docker: `docker build -t constitbrief . && docker run -p 127.0.0.1:8787:8787 -v cb-data:/data --env-file .env constitbrief`.
 
+### Vercel (demo only)
+
+`pyproject.toml` points Vercel at `backend.app.main:app`, so the project builds. On Vercel, SQLite can only live in `/tmp`. That storage is per instance and temporary, so sign-ins, drafts and the handoff log (including duplicate protection) can disappear at any time. The app shows a red "demo deployment" banner there.
+
+* Set `BOOTSTRAP_ADMIN_USERNAME` / `BOOTSTRAP_ADMIN_PASSWORD` in the project's environment variables to get a login.
+* Don't use it with real constituent information.
+* For real use, host with a persistent disk (Docker or Tailscale, above), or move storage to a managed database.
+
 ## Data handling
 
 * **Server drafts.** Notes and the staff record are held in a server draft that expires after `DRAFT_RETENTION_HOURS` (default 72). "Finish & clear" wipes it immediately. The handoff log keeps only references and status, with no notes or field values.
